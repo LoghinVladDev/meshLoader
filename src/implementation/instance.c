@@ -127,7 +127,7 @@ static MeshLoader_Result __MeshLoader_Instance_acquireNewNode (
         MeshLoader_AllocationCallbacks  const * pAllocationCallbacks
 ) {
 
-    MeshLoader_Result result = MeshLoader_Result_ErrorUnknown;
+    MeshLoader_Result result;
 
     MeshLoader_AllocationNotification allocationNotification = {
             .structureType          = MeshLoader_StructureType_AllocationNotification,
@@ -225,34 +225,37 @@ static void __MeshLoader_Instance_removeInstanceNode (
                 pAllocationCallbacks->pUserData,
                 pDeletionCopy
         );
-    } else {
 
-        pHead = pControl->pInstanceList;
+        __MeshLoader_removeModuleLock();
+        return;
+    }
 
-        while ( pHead->pNextInstanceNode != NULL ) {
+    pHead = pControl->pInstanceList;
 
-            if ( pInstance == & pHead->pNextInstanceNode->instanceData ) {
+    while ( pHead->pNextInstanceNode != NULL ) {
 
-                allocationNotification.pMemory = pHead->pNextInstanceNode;
-                if ( pAllocationCallbacks->internalFreeNotificationFunction != NULL ) {
-                    pAllocationCallbacks->internalFreeNotificationFunction (
-                            pAllocationCallbacks->pUserData,
-                            & allocationNotification
-                    );
-                }
+        if ( pInstance == & pHead->pNextInstanceNode->instanceData ) {
 
-                pDeletionCopy = pHead->pNextInstanceNode;
-                pHead->pNextInstanceNode = pHead->pNextInstanceNode->pNextInstanceNode;
-
-                pAllocationCallbacks->freeFunction (
+            allocationNotification.pMemory = pHead->pNextInstanceNode;
+            if ( pAllocationCallbacks->internalFreeNotificationFunction != NULL ) {
+                pAllocationCallbacks->internalFreeNotificationFunction (
                         pAllocationCallbacks->pUserData,
-                        pDeletionCopy
+                        & allocationNotification
                 );
             }
 
-            pHead = pHead->pNextInstanceNode;
-        }
-    }
+            pDeletionCopy = pHead->pNextInstanceNode;
+            pHead->pNextInstanceNode = pHead->pNextInstanceNode->pNextInstanceNode;
 
-    __MeshLoader_removeModuleLock();
+            pAllocationCallbacks->freeFunction (
+                    pAllocationCallbacks->pUserData,
+                    pDeletionCopy
+            );
+
+            __MeshLoader_removeModuleLock();
+            return;
+        }
+
+        pHead = pHead->pNextInstanceNode;
+    }
 }
