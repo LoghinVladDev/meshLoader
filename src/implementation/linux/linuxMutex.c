@@ -4,14 +4,28 @@
 
 #include <pthread.h>
 #include <meshLoader/publicTypes>
+#include <stdalign.h>
+#include "../internalAllocation.h"
+
+#if defined(__linux__)
 
 static pthread_mutex_t  __MeshLoader_LinuxMutex_moduleLock;
 static MeshLoader_bool  __MeshLoader_LinuxMutex_firstApplyModuleLockCall = MeshLoader_true;
 
+struct __MeshLoader_Linux_Mutex {
+    pthread_mutex_t mutex;
+};
+
 MeshLoader_Result __MeshLoader_applyModuleLock () {
+    int mutexRetVal;
+
     if ( __MeshLoader_LinuxMutex_firstApplyModuleLockCall ) {
 
-        pthread_mutex_init ( & __MeshLoader_LinuxMutex_moduleLock, NULL );
+        mutexRetVal = pthread_mutex_init ( & __MeshLoader_LinuxMutex_moduleLock, NULL );
+        if ( mutexRetVal != 0 ) {
+            return MeshLoader_Result_ErrorUnknown;
+        }
+
         __MeshLoader_LinuxMutex_firstApplyModuleLockCall = MeshLoader_false;
     }
 
@@ -22,3 +36,93 @@ MeshLoader_Result __MeshLoader_applyModuleLock () {
 void __MeshLoader_removeModuleLock () {
     pthread_mutex_unlock ( & __MeshLoader_LinuxMutex_moduleLock );
 }
+
+MeshLoader_Result __MeshLoader_Mutex_create (
+        struct __MeshLoader_Linux_Mutex              ** ppMutex,
+        __MeshLoader_ScopedAllocationCallbacks  const * pAllocationCallbacks
+) {
+
+    int mutexRetVal;
+
+    MeshLoader_AllocationNotification allocationNotification = {
+            .structureType          = MeshLoader_StructureType_AllocationNotification,
+            .pNext                  = NULL,
+            .pMemory                = NULL,
+            .pOldMemory             = NULL,
+            .size                   = sizeof ( struct __MeshLoader_Linux_Mutex ),
+            .alignment              = alignof ( struct __MeshLoader_Linux_Mutex ),
+            .allocationScope        = pAllocationCallbacks->allocationScope,
+            .explicitMemoryPurpose  = "Creates a Mutex type Object ( linux )"
+    };
+
+    allocationNotification.pMemory = pAllocationCallbacks->pAllocationCallbacks->allocationFunction (
+            pAllocationCallbacks->pAllocationCallbacks->pUserData,
+            allocationNotification.size,
+            allocationNotification.alignment,
+            allocationNotification.allocationScope
+    );
+
+    if ( pAllocationCallbacks->pAllocationCallbacks->internalAllocationNotificationFunction != NULL ) {
+        pAllocationCallbacks->pAllocationCallbacks->internalAllocationNotificationFunction (
+                pAllocationCallbacks->pAllocationCallbacks->pUserData,
+                & allocationNotification
+        );
+    }
+
+    mutexRetVal = pthread_mutex_init (
+            & ( ( struct __MeshLoader_Linux_Mutex * ) allocationNotification.pMemory )->mutex,
+            NULL
+    );
+
+    if ( mutexRetVal != 0 ) {
+        if ( pAllocationCallbacks->pAllocationCallbacks->internalFreeNotificationFunction != NULL ) {
+            allocationNotification.explicitMemoryPurpose = "Deletes a Mutex type Object ( pthread_mutex_init failure )";
+            pAllocationCallbacks->pAllocationCallbacks->internalFreeNotificationFunction (
+                    pAllocationCallbacks->pAllocationCallbacks->pUserData,
+                    & allocationNotification
+            );
+        }
+
+        pAllocationCallbacks->pAllocationCallbacks->freeFunction (
+                pAllocationCallbacks->pAllocationCallbacks->freeFunction,
+                allocationNotification.pMemory
+        );
+
+        return MeshLoader_Result_ErrorUnknown;
+    }
+
+    * ppMutex = ( struct __MeshLoader_Linux_Mutex * ) allocationNotification.pMemory;
+    return MeshLoader_Result_Success;
+}
+
+void __MeshLoader_Mutex_destroy (
+        struct __MeshLoader_Linux_Mutex               * pMutex,
+        __MeshLoader_ScopedAllocationCallbacks  const * pAllocationCallbacks
+) {
+    MeshLoader_AllocationNotification allocationNotification = {
+            .structureType          = MeshLoader_StructureType_AllocationNotification,
+            .pNext                  = NULL,
+            .pMemory                = pMutex,
+            .pOldMemory             = NULL,
+            .size                   = sizeof ( struct __MeshLoader_Linux_Mutex ),
+            .alignment              = alignof ( struct __MeshLoader_Linux_Mutex ),
+            .allocationScope        = pAllocationCallbacks->allocationScope,
+            .explicitMemoryPurpose  = "Destroys a Mutex type Object at end of life ( linux )"
+    };
+
+    pthread_mutex_destroy ( & pMutex->mutex );
+
+    if ( pAllocationCallbacks->pAllocationCallbacks->internalFreeNotificationFunction != NULL ) {
+        pAllocationCallbacks->pAllocationCallbacks->internalFreeNotificationFunction (
+                pAllocationCallbacks->pAllocationCallbacks->pUserData,
+                & allocationNotification
+        );
+    }
+
+    pAllocationCallbacks->pAllocationCallbacks->freeFunction (
+        pAllocationCallbacks->pAllocationCallbacks->pUserData,
+        allocationNotification.pMemory
+    );
+}
+
+#endif

@@ -23,8 +23,15 @@ static MeshLoader_Result __MeshLoader_Instance_acquireNewNode (
         MeshLoader_AllocationCallbacks    const *
 );
 
-static void __MeshLoader_Instance_destroy (
-        MeshLoader_Instance
+static MeshLoader_Result __MeshLoader_Instance_construct (
+        MeshLoader_Instance,
+        MeshLoader_InstanceCreateInfo   const *,
+        MeshLoader_AllocationCallbacks  const *
+);
+
+static void __MeshLoader_Instance_destruct (
+        MeshLoader_Instance,
+        MeshLoader_AllocationCallbacks  const *
 );
 
 static void __MeshLoader_Instance_removeInstanceNode (

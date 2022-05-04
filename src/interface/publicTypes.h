@@ -12,8 +12,8 @@
 #define NULL                            ( ( void * ) 0x00000000U )
 #endif
 
-#define MeshLoader_InvalidHandle        ( ( MeshLoader_Handle ) 0x00000000U )
-#define MeshLoader_EmptyFlags           ( ( MeshLoader_Flags )  0x00000000U )
+#define MeshLoader_invalidHandle        ( ( MeshLoader_Handle ) 0x00000000U )
+#define MeshLoader_nullFlags           ( ( MeshLoader_Flags )  0x00000000U )
 
 
 typedef unsigned char                   MeshLoader_uint8;
@@ -130,6 +130,7 @@ typedef struct {
     MeshLoader_StructureType            structureType;
     void                        const * pNext;
     void                              * pMemory;
+    void                              * pOldMemory;
     MeshLoader_size                     size;
     MeshLoader_size                     alignment;
     MeshLoader_SystemAllocationScope    allocationScope;

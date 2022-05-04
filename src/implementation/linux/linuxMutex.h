@@ -6,12 +6,19 @@
 #define __MESH_LOADER_LINUX_MUTEX_H__
 
 #include <meshLoader/publicTypes>
+#include "../internalAllocation.h"
 
 extern MeshLoader_Result __MeshLoader_applyModuleLock ();
 extern void __MeshLoader_removeModuleLock ();
 
-extern MeshLoader_Result __MeshLoader_Mutex_init (
-        struct __MeshLoader_Linux_Mutex *
+extern MeshLoader_Result __MeshLoader_Mutex_create (
+        struct __MeshLoader_Linux_Mutex              **,
+        __MeshLoader_ScopedAllocationCallbacks  const *
+);
+
+extern void __MeshLoader_Mutex_destroy (
+        struct __MeshLoader_Linux_Mutex               *,
+        __MeshLoader_ScopedAllocationCallbacks  const *
 );
 
 #endif // __MESH_LOADER_LINUX_MUTEX_H__
