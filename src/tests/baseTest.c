@@ -5,9 +5,7 @@ int main() {
 
     MeshLoader_Result               result;
 
-    MeshLoader_Instance             instance1;
-    MeshLoader_Instance             instance2;
-    MeshLoader_Instance             instance3;
+    MeshLoader_Instance             instance;
     MeshLoader_InstanceCreateInfo   instanceCreateInfo;
 
     instanceCreateInfo.structureType            = MeshLoader_StructureType_InstanceCreateInfo;
@@ -17,7 +15,7 @@ int main() {
 
     result = MeshLoader_createInstance (
             & instanceCreateInfo,
-            & instance1,
+            & instance,
             NULL
     );
 
@@ -26,31 +24,52 @@ int main() {
         return 1;
     }
 
-    result = MeshLoader_createInstance (
-            & instanceCreateInfo,
-            & instance2,
+    MeshLoader_CreateJobInfo jobInfos [] = {
+            {
+                    .structureType  = MeshLoader_StructureType_CreateJobInfo,
+                    .pNext          = NULL,
+                    .inputPath      = "../tests/data/baseTest/cow.obj",
+                    .priority       = 1.0f
+            }, {
+                    .structureType  = MeshLoader_StructureType_CreateJobInfo,
+                    .pNext          = NULL,
+                    .inputPath      = "../tests/data/baseTest/teapot.obj",
+                    .priority       = .5f
+            }, {
+                    .structureType  = MeshLoader_StructureType_CreateJobInfo,
+                    .pNext          = NULL,
+                    .inputPath      = "../tests/data/baseTest/teapot.obj",
+                    .priority       = .5f
+            }
+    };
+
+    int const jobCount = 3;
+    MeshLoader_Job jobs[jobCount];
+
+    MeshLoader_JobsCreateInfo jobsCreateInfo = {
+            .structureType      = MeshLoader_StructureType_JobsCreateInfo,
+            .pNext              = NULL,
+            .flags              = MeshLoader_nullFlags,
+            .loadMode           = MeshLoader_MeshLoadModeFlag_LoadFaces | MeshLoader_MeshLoadModeFlag_LoadIndices,
+            .jobCount           = jobCount,
+            .pJobs              = & jobs[0],
+            .pCreateJobInfos    = & jobInfos[0]
+    };
+
+    result = MeshLoader_createJobs (
+            instance,
+            & jobsCreateInfo,
             NULL
     );
 
     if ( result != MeshLoader_Result_Success ) {
-        fprintf ( stderr, "Failed to create MeshLoader Instance" );
+        MeshLoader_destroyInstance ( instance, NULL );
+        fprintf ( stderr, "Failed to create MeshLoader Jobs" );
         return 1;
     }
 
-    result = MeshLoader_createInstance (
-            & instanceCreateInfo,
-            & instance3,
-            NULL
-    );
-
-    if ( result != MeshLoader_Result_Success ) {
-        fprintf ( stderr, "Failed to create MeshLoader Instance" );
-        return 1;
-    }
-
-    MeshLoader_destroyInstance ( instance1, NULL );
-    MeshLoader_destroyInstance ( instance3, NULL );
-    MeshLoader_destroyInstance ( instance2, NULL );
+    MeshLoader_destroyJobs ( instance, jobCount, & jobs[0], NULL );
+    MeshLoader_destroyInstance ( instance, NULL );
 
     return 0;
 }

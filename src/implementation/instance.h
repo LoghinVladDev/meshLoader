@@ -5,8 +5,33 @@
 #ifndef __MESH_LOADER_INSTANCE_H__
 #define __MESH_LOADER_INSTANCE_H__
 
-#include "privateTypes.h"
 #include "mutex.h"
+#include "job.h"
+
+typedef struct __MeshLoader_Instance_JobNode {
+    struct __MeshLoader_Instance_JobNode  * pNextJobNode;
+    struct __MeshLoader_Job                 jobs[32];
+    MeshLoader_uint32                       nodeUsage;
+} __MeshLoader_Instance_JobNode;
+
+typedef __MeshLoader_Instance_JobNode * __MeshLoader_Instance_JobList;
+
+struct __MeshLoader_Instance {
+    MeshLoader_uint32               maxThreadCount;
+    __MeshLoader_Mutex              instanceLock;
+    __MeshLoader_Instance_JobList   jobList;
+
+#if MESH_LOADER_DEBUG_MODE
+
+    MeshLoader_uint32               totalJobCount;
+    MeshLoader_uint32               readyJobCount;
+    MeshLoader_uint32               runningJobCount;
+    MeshLoader_uint32               stoppedJobCount;
+    MeshLoader_uint32               finishedJobCount;
+    MeshLoader_uint32               finishedErrorJobCount;
+
+#endif
+};
 
 typedef struct __MeshLoader_Instance_Node {
     struct __MeshLoader_Instance_Node * pNextInstanceNode;
@@ -16,12 +41,6 @@ typedef struct __MeshLoader_Instance_Node {
 typedef struct {
     __MeshLoader_Instance_Node      * pInstanceList;
 } __MeshLoader_Instance_Control;
-
-static MeshLoader_Result __MeshLoader_Instance_acquireNewNode (
-        __MeshLoader_Instance_Control           *,
-        __MeshLoader_Instance_Node             **,
-        MeshLoader_AllocationCallbacks    const *
-);
 
 static MeshLoader_Result __MeshLoader_Instance_construct (
         MeshLoader_Instance,
@@ -34,10 +53,81 @@ static void __MeshLoader_Instance_destruct (
         MeshLoader_AllocationCallbacks  const *
 );
 
-static void __MeshLoader_Instance_removeInstanceNode (
+static MeshLoader_Result __MeshLoader_Instance_allocateInstance (
+        __MeshLoader_Instance_Control           *,
+        MeshLoader_Instance                     *,
+        MeshLoader_AllocationCallbacks    const *
+);
+
+static void __MeshLoader_Instance_freeInstance (
         __MeshLoader_Instance_Control           *,
         MeshLoader_Instance,
         MeshLoader_AllocationCallbacks    const *
+);
+
+static MeshLoader_Result __MeshLoader_Instance_allocateJobsFillExisting (
+        MeshLoader_Instance,
+        MeshLoader_uint32,
+        MeshLoader_Job                        *,
+        MeshLoader_uint32                     *
+);
+
+static MeshLoader_Result __MeshLoader_Instance_allocateJobsNewNodes (
+        MeshLoader_Instance,
+        MeshLoader_uint32,
+        MeshLoader_Job                        *,
+        MeshLoader_AllocationCallbacks  const *,
+        MeshLoader_uint32
+);
+
+static MeshLoader_Result __MeshLoader_Instance_allocateJobNode (
+        MeshLoader_Instance,
+        __MeshLoader_Instance_JobNode        **,
+        MeshLoader_AllocationCallbacks  const *
+);
+
+static void __MeshLoader_Instance_cleanupAllocatedJobNodes (
+        MeshLoader_Instance,
+        __MeshLoader_Instance_JobNode   const *,
+        MeshLoader_AllocationCallbacks  const *
+);
+
+static MeshLoader_Result __MeshLoader_Instance_allocateJobs (
+        MeshLoader_Instance,
+        MeshLoader_uint32,
+        MeshLoader_Job                        *,
+        MeshLoader_AllocationCallbacks  const *
+);
+
+static void __MeshLoader_Instance_freeJobs (
+        MeshLoader_Instance,
+        MeshLoader_uint32,
+        MeshLoader_Job                  const *,
+        MeshLoader_AllocationCallbacks  const *
+);
+
+static void __MeshLoader_Instance_freeJobsInFirstNode (
+        MeshLoader_Instance,
+        MeshLoader_uint32,
+        MeshLoader_Job                  const *,
+        MeshLoader_AllocationCallbacks  const *
+);
+
+static void __MeshLoader_Instance_freeFirstJobNode (
+        MeshLoader_Instance,
+        MeshLoader_AllocationCallbacks  const *
+);
+
+static void __MeshLoader_Instance_freeJobsNextInNode (
+        __MeshLoader_Instance_JobNode         *,
+        MeshLoader_uint32,
+        MeshLoader_Job                  const *,
+        MeshLoader_AllocationCallbacks  const *
+);
+
+static void __MeshLoader_Instance_freeNextJobNode (
+        __MeshLoader_Instance_JobNode         *,
+        MeshLoader_AllocationCallbacks  const *
 );
 
 #endif // __MESH_LOADER_INSTANCE_H__

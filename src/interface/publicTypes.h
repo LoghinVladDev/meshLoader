@@ -13,7 +13,7 @@
 #endif
 
 #define MeshLoader_invalidHandle        ( ( MeshLoader_Handle ) 0x00000000U )
-#define MeshLoader_nullFlags           ( ( MeshLoader_Flags )  0x00000000U )
+#define MeshLoader_nullFlags            ( ( MeshLoader_Flags )  0x00000000U )
 
 
 typedef unsigned char                   MeshLoader_uint8;
@@ -39,7 +39,9 @@ typedef MeshLoader_Flags                MeshLoader_JobsResumeFlags;
 typedef MeshLoader_Flags                MeshLoader_JobsStopFlags;
 typedef MeshLoader_Flags                MeshLoader_JobsTerminateFlags;
 typedef MeshLoader_Flags                MeshLoader_JobsQueryFlags;
+typedef MeshLoader_Flags                MeshLoader_MeshLoadModeFlags;
 
+typedef void                          * MeshLoader_Handle;
 typedef struct __MeshLoader_Instance  * MeshLoader_Instance;
 typedef struct __MeshLoader_Job       * MeshLoader_Job;
 typedef struct __MeshLoader_Mesh      * MeshLoader_Mesh;
@@ -99,11 +101,12 @@ typedef enum {
 } MeshLoader_JobStatus;
 
 typedef enum {
-    MeshLoader_JobsCreateFlag_LoadFaces             = 0x00000001U,
-    MeshLoader_JobsCreateFlag_LoadIndices           = 0x00000002U,
+    MeshLoader_MeshLoadModeFlag_LoadFaces           = 0x00000001U,
+    MeshLoader_MeshLoadModeFlag_LoadIndices         = 0x00000002U,
+} MeshLoader_MeshLoadModeFlagBits;
 
-    MeshLoader_JobsCreateFlag_LoadFacesAndIndices   =
-            MeshLoader_JobsCreateFlag_LoadFaces | MeshLoader_JobsCreateFlag_LoadIndices,
+typedef enum {
+    MeshLoader_JobsCreateFlag_ContinueIfError       = 0x00000001U,
 } MeshLoader_JobsCreateFlagBits;
 
 typedef void * ( * MeshLoader_AllocationFunction ) (
@@ -199,7 +202,9 @@ typedef struct {
     MeshLoader_StructureType            structureType;
     void                        const * pNext;
     MeshLoader_JobsCreateFlags          flags;
+    MeshLoader_MeshLoadModeFlags        loadMode;
     MeshLoader_uint32                   jobCount;
+    MeshLoader_Job                    * pJobs;
     MeshLoader_CreateJobInfo    const * pCreateJobInfos;
 } MeshLoader_JobsCreateInfo;
 

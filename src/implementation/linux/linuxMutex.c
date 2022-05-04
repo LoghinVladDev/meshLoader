@@ -62,6 +62,10 @@ MeshLoader_Result __MeshLoader_Mutex_create (
             allocationNotification.allocationScope
     );
 
+    if ( allocationNotification.pMemory == NULL ) {
+        return MeshLoader_Result_OutOfMemory;
+    }
+
     if ( pAllocationCallbacks->pAllocationCallbacks->internalAllocationNotificationFunction != NULL ) {
         pAllocationCallbacks->pAllocationCallbacks->internalAllocationNotificationFunction (
                 pAllocationCallbacks->pAllocationCallbacks->pUserData,

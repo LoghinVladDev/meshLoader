@@ -20,14 +20,16 @@ set (
 
         ${MESH_LOADER_IMPLEMENTATION_LINUX_SOURCES}
 
-        src/implementation/privateTypes.h
-        src/implementation/privateUtility.h
+        src/implementation/instance.h
         src/implementation/instance.c
         src/implementation/internalAllocation.h
         src/implementation/internalAllocation.c
         src/implementation/utility.c
+        src/implementation/privateUtility.h
         src/implementation/mutex.h
         src/implementation/thread.h
+        src/implementation/job.c
+        src/implementation/job.h
 )
 
 set (
