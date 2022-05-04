@@ -195,6 +195,7 @@ typedef struct {
 typedef struct {
     MeshLoader_StructureType            structureType;
     void                        const * pNext;
+    MeshLoader_MeshLoadModeFlags        loadMode;
     MeshLoader_StringLiteral            inputPath;
     float                               priority;
 } MeshLoader_CreateJobInfo;
@@ -203,7 +204,6 @@ typedef struct {
     MeshLoader_StructureType            structureType;
     void                        const * pNext;
     MeshLoader_JobsCreateFlags          flags;
-    MeshLoader_MeshLoadModeFlags        loadMode;
     MeshLoader_uint32                   jobCount;
     MeshLoader_Job                    * pJobs;
     MeshLoader_CreateJobInfo    const * pCreateJobInfos;

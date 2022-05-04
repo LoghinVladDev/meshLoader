@@ -28,16 +28,19 @@ int main() {
             {
                     .structureType  = MeshLoader_StructureType_CreateJobInfo,
                     .pNext          = NULL,
+                    .loadMode       = MeshLoader_MeshLoadModeFlag_LoadFaces | MeshLoader_MeshLoadModeFlag_LoadIndices,
                     .inputPath      = "../tests/data/baseTest/cow.obj",
                     .priority       = 1.0f
             }, {
                     .structureType  = MeshLoader_StructureType_CreateJobInfo,
                     .pNext          = NULL,
+                    .loadMode       = MeshLoader_MeshLoadModeFlag_LoadFaces | MeshLoader_MeshLoadModeFlag_LoadIndices,
                     .inputPath      = "../tests/data/baseTest/teapot.obj",
                     .priority       = .5f
             }, {
                     .structureType  = MeshLoader_StructureType_CreateJobInfo,
                     .pNext          = NULL,
+                    .loadMode       = MeshLoader_MeshLoadModeFlag_LoadFaces | MeshLoader_MeshLoadModeFlag_LoadIndices,
                     .inputPath      = "../tests/data/baseTest/teapot.obj",
                     .priority       = .5f
             }
@@ -50,7 +53,6 @@ int main() {
             .structureType      = MeshLoader_StructureType_JobsCreateInfo,
             .pNext              = NULL,
             .flags              = MeshLoader_nullFlags,
-            .loadMode           = MeshLoader_MeshLoadModeFlag_LoadFaces | MeshLoader_MeshLoadModeFlag_LoadIndices,
             .jobCount           = jobCount,
             .pJobs              = & jobs[0],
             .pCreateJobInfos    = & jobInfos[0]

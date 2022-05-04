@@ -6,19 +6,19 @@ include_directories ( include )
 set(CMAKE_C_STANDARD 99)
 
 set (
-        MESH_LOADER_IMPLEMENTATION_LINUX_SOURCES
+        MESH_LOADER_IMPLEMENTATION_POSIX_SOURCES
 
-        src/implementation/linux/linuxThread.c
-        src/implementation/linux/linuxMutex.c
+        src/implementation/posix/posixThread.c
+        src/implementation/posix/posixMutex.c
 
-        src/implementation/linux/linuxThread.h
-        src/implementation/linux/linuxMutex.h
+        src/implementation/posix/posixThread.h
+        src/implementation/posix/posixMutex.h
 )
 
 set (
         MESH_LOADER_IMPLEMENTATION_SOURCES
 
-        ${MESH_LOADER_IMPLEMENTATION_LINUX_SOURCES}
+        ${MESH_LOADER_IMPLEMENTATION_POSIX_SOURCES}
 
         src/implementation/instance.h
         src/implementation/instance.c
@@ -26,10 +26,13 @@ set (
         src/implementation/internalAllocation.c
         src/implementation/utility.c
         src/implementation/privateUtility.h
+        src/implementation/privateTypes.h
         src/implementation/mutex.h
         src/implementation/thread.h
         src/implementation/job.c
         src/implementation/job.h
+        src/implementation/string.c
+        src/implementation/string.h
 )
 
 set (

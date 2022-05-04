@@ -9,36 +9,36 @@
 
 #if defined(__linux__)
 
-static pthread_mutex_t  __MeshLoader_LinuxMutex_moduleLock;
-static MeshLoader_bool  __MeshLoader_LinuxMutex_firstApplyModuleLockCall = MeshLoader_true;
+static pthread_mutex_t  __MeshLoader_PosixMutex_moduleLock;
+static MeshLoader_bool  __MeshLoader_PosixMutex_firstApplyModuleLockCall = MeshLoader_true;
 
-struct __MeshLoader_Linux_Mutex {
+struct __MeshLoader_Posix_Mutex {
     pthread_mutex_t mutex;
 };
 
 MeshLoader_Result __MeshLoader_applyModuleLock () {
     int mutexRetVal;
 
-    if ( __MeshLoader_LinuxMutex_firstApplyModuleLockCall ) {
+    if ( __MeshLoader_PosixMutex_firstApplyModuleLockCall ) {
 
-        mutexRetVal = pthread_mutex_init ( & __MeshLoader_LinuxMutex_moduleLock, NULL );
+        mutexRetVal = pthread_mutex_init ( & __MeshLoader_PosixMutex_moduleLock, NULL );
         if ( mutexRetVal != 0 ) {
             return MeshLoader_Result_MutexError;
         }
 
-        __MeshLoader_LinuxMutex_firstApplyModuleLockCall = MeshLoader_false;
+        __MeshLoader_PosixMutex_firstApplyModuleLockCall = MeshLoader_false;
     }
 
-    pthread_mutex_lock ( & __MeshLoader_LinuxMutex_moduleLock );
+    pthread_mutex_lock ( & __MeshLoader_PosixMutex_moduleLock );
     return MeshLoader_Result_Success;
 }
 
 void __MeshLoader_removeModuleLock () {
-    pthread_mutex_unlock ( & __MeshLoader_LinuxMutex_moduleLock );
+    pthread_mutex_unlock ( & __MeshLoader_PosixMutex_moduleLock );
 }
 
 MeshLoader_Result __MeshLoader_Mutex_create (
-        struct __MeshLoader_Linux_Mutex              ** ppMutex,
+        struct __MeshLoader_Posix_Mutex              ** ppMutex,
         __MeshLoader_ScopedAllocationCallbacks  const * pAllocationCallbacks
 ) {
 
@@ -49,10 +49,10 @@ MeshLoader_Result __MeshLoader_Mutex_create (
             .pNext                  = NULL,
             .pMemory                = NULL,
             .pOldMemory             = NULL,
-            .size                   = sizeof ( struct __MeshLoader_Linux_Mutex ),
-            .alignment              = alignof ( struct __MeshLoader_Linux_Mutex ),
+            .size                   = sizeof ( struct __MeshLoader_Posix_Mutex ),
+            .alignment              = alignof ( struct __MeshLoader_Posix_Mutex ),
             .allocationScope        = pAllocationCallbacks->allocationScope,
-            .explicitMemoryPurpose  = "Creates a Mutex type Object ( linux )"
+            .explicitMemoryPurpose  = "Creates a Mutex type Object ( posix )"
     };
 
     allocationNotification.pMemory = pAllocationCallbacks->pAllocationCallbacks->allocationFunction (
@@ -74,7 +74,7 @@ MeshLoader_Result __MeshLoader_Mutex_create (
     }
 
     mutexRetVal = pthread_mutex_init (
-            & ( ( struct __MeshLoader_Linux_Mutex * ) allocationNotification.pMemory )->mutex,
+            & ( ( struct __MeshLoader_Posix_Mutex * ) allocationNotification.pMemory )->mutex,
             NULL
     );
 
@@ -95,12 +95,12 @@ MeshLoader_Result __MeshLoader_Mutex_create (
         return MeshLoader_Result_MutexError;
     }
 
-    * ppMutex = ( struct __MeshLoader_Linux_Mutex * ) allocationNotification.pMemory;
+    * ppMutex = ( struct __MeshLoader_Posix_Mutex * ) allocationNotification.pMemory;
     return MeshLoader_Result_Success;
 }
 
 void __MeshLoader_Mutex_destroy (
-        struct __MeshLoader_Linux_Mutex               * pMutex,
+        struct __MeshLoader_Posix_Mutex               * pMutex,
         __MeshLoader_ScopedAllocationCallbacks  const * pAllocationCallbacks
 ) {
     MeshLoader_AllocationNotification allocationNotification = {
@@ -108,10 +108,10 @@ void __MeshLoader_Mutex_destroy (
             .pNext                  = NULL,
             .pMemory                = pMutex,
             .pOldMemory             = NULL,
-            .size                   = sizeof ( struct __MeshLoader_Linux_Mutex ),
-            .alignment              = alignof ( struct __MeshLoader_Linux_Mutex ),
+            .size                   = sizeof ( struct __MeshLoader_Posix_Mutex ),
+            .alignment              = alignof ( struct __MeshLoader_Posix_Mutex ),
             .allocationScope        = pAllocationCallbacks->allocationScope,
-            .explicitMemoryPurpose  = "Destroys a Mutex type Object at end of life ( linux )"
+            .explicitMemoryPurpose  = "Destroys a Mutex type Object at end of life ( posix )"
     };
 
     pthread_mutex_destroy ( & pMutex->mutex );
@@ -130,7 +130,7 @@ void __MeshLoader_Mutex_destroy (
 }
 
 MeshLoader_Result __MeshLoader_Mutex_lock (
-        struct __MeshLoader_Linux_Mutex * pMutex
+        struct __MeshLoader_Posix_Mutex * pMutex
 ) {
 
     if ( 0 != pthread_mutex_lock ( & pMutex->mutex ) ) {
@@ -141,7 +141,7 @@ MeshLoader_Result __MeshLoader_Mutex_lock (
 }
 
 void __MeshLoader_Mutex_unlock (
-        struct __MeshLoader_Linux_Mutex * pMutex
+        struct __MeshLoader_Posix_Mutex * pMutex
 ) {
 
     pthread_mutex_unlock ( & pMutex->mutex );
