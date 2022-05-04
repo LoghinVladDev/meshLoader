@@ -21,4 +21,12 @@ extern void __MeshLoader_Mutex_destroy (
         __MeshLoader_ScopedAllocationCallbacks  const *
 );
 
+extern MeshLoader_Result __MeshLoader_Mutex_lock (
+        struct __MeshLoader_Linux_Mutex *
+);
+
+extern void __MeshLoader_Mutex_unlock (
+        struct __MeshLoader_Linux_Mutex *
+);
+
 #endif // __MESH_LOADER_LINUX_MUTEX_H__

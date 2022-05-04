@@ -23,7 +23,7 @@ MeshLoader_Result __MeshLoader_applyModuleLock () {
 
         mutexRetVal = pthread_mutex_init ( & __MeshLoader_LinuxMutex_moduleLock, NULL );
         if ( mutexRetVal != 0 ) {
-            return MeshLoader_Result_ErrorUnknown;
+            return MeshLoader_Result_MutexError;
         }
 
         __MeshLoader_LinuxMutex_firstApplyModuleLockCall = MeshLoader_false;
@@ -92,7 +92,7 @@ MeshLoader_Result __MeshLoader_Mutex_create (
                 allocationNotification.pMemory
         );
 
-        return MeshLoader_Result_ErrorUnknown;
+        return MeshLoader_Result_MutexError;
     }
 
     * ppMutex = ( struct __MeshLoader_Linux_Mutex * ) allocationNotification.pMemory;
@@ -127,6 +127,24 @@ void __MeshLoader_Mutex_destroy (
         pAllocationCallbacks->pAllocationCallbacks->pUserData,
         allocationNotification.pMemory
     );
+}
+
+MeshLoader_Result __MeshLoader_Mutex_lock (
+        struct __MeshLoader_Linux_Mutex * pMutex
+) {
+
+    if ( 0 != pthread_mutex_lock ( & pMutex->mutex ) ) {
+        return MeshLoader_Result_MutexError;
+    }
+
+    return MeshLoader_Result_Success;
+}
+
+void __MeshLoader_Mutex_unlock (
+        struct __MeshLoader_Linux_Mutex * pMutex
+) {
+
+    pthread_mutex_unlock ( & pMutex->mutex );
 }
 
 #endif

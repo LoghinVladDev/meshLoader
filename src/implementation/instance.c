@@ -312,10 +312,17 @@ MeshLoader_Result MeshLoader_createJobs (
 
                 return result;
             } else {
-                /* implement for ContinueIfError */
+                /** TODO : implement for ContinueIfError */
             }
         }
     }
+
+#if MESH_LOADER_DEBUG_MODE
+
+    instance->readyJobCount  = pCreateInfo->jobCount;
+    instance->totalJobCount += instance->readyJobCount;
+
+#endif
 
     return MeshLoader_Result_Success;
 }
@@ -329,6 +336,9 @@ extern void MeshLoader_destroyJobs (
     pAllocationCallbacks = __MeshLoader_Utility_nonNullAllocationCallbacks ( pAllocationCallbacks );
 
     for ( MeshLoader_uint32 jobIndex = 0U; jobIndex < jobCount; ++ jobIndex ) {
+
+        /** TODO : implement for jobCounts */
+
         __MeshLoader_Job_destruct ( pJobs [ jobIndex ], pAllocationCallbacks );
     }
 
@@ -338,6 +348,13 @@ extern void MeshLoader_destroyJobs (
             & pJobs[0],
             pAllocationCallbacks
     );
+
+#if MESH_LOADER_DEBUG_MODE
+
+    instance->totalJobCount -= jobCount;
+
+#endif
+
 }
 
 static MeshLoader_Result __MeshLoader_Instance_allocateJobs (
@@ -350,6 +367,12 @@ static MeshLoader_Result __MeshLoader_Instance_allocateJobs (
     MeshLoader_uint32 allocatedJobCount = 0U;
     MeshLoader_Result result;
 
+    result = __MeshLoader_Mutex_lock ( instance->instanceLock );
+
+    if ( result != MeshLoader_Result_Success ) {
+        return result;
+    }
+
     result = __MeshLoader_Instance_allocateJobsFillExisting (
             instance,
             jobCount,
@@ -358,6 +381,7 @@ static MeshLoader_Result __MeshLoader_Instance_allocateJobs (
     );
 
     if ( result != MeshLoader_Result_Success || allocatedJobCount == jobCount ) {
+        __MeshLoader_Mutex_unlock ( instance->instanceLock );
         return result;
     }
 
@@ -381,9 +405,11 @@ static MeshLoader_Result __MeshLoader_Instance_allocateJobs (
             pJobs [ jobIndex ] = MeshLoader_invalidHandle;
         }
 
+        __MeshLoader_Mutex_unlock ( instance->instanceLock );
         return result;
     }
 
+    __MeshLoader_Mutex_unlock ( instance->instanceLock );
     return MeshLoader_Result_Success;
 }
 
@@ -567,6 +593,8 @@ static void __MeshLoader_Instance_freeJobs (
 
     __MeshLoader_Instance_JobNode * pHead;
 
+    (void) __MeshLoader_Mutex_lock ( instance->instanceLock );
+
     __MeshLoader_Instance_freeJobsInFirstNode (
             instance,
             jobCount,
@@ -585,6 +613,8 @@ static void __MeshLoader_Instance_freeJobs (
                 pAllocationCallbacks
         );
     }
+
+    __MeshLoader_Mutex_unlock ( instance->instanceLock );
 }
 
 static void __MeshLoader_Instance_freeJobsInFirstNode (
