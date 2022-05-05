@@ -64,7 +64,7 @@ static void __MeshLoader_InternalAllocation_free (
         void                              *
 );
 
-#ifndef NDEBUG
+#if MESH_LOADER_DEBUG_MODE
 
 static void __MeshLoader_InternalAllocation_allocationNotify (
         void                                      *,
@@ -161,7 +161,7 @@ static void __MeshLoader_InternalAllocation_free (
     free ( pMemory );
 }
 
-#ifndef NDEBUG
+#if MESH_LOADER_DEBUG_MODE
 
 static void __MeshLoader_InternalAllocation_allocationNotify (
         void                                      * pUserData,
@@ -422,6 +422,12 @@ void __MeshLoader_InternalAllocation_clear () {
             __MeshLoader_InternalAllocation_memoryTrackingList.lock,
             & __MeshLoader_InternalAllocation_trackingScopedAllocationCallbacks
     );
+}
+
+#else
+
+void __MeshLoader_InternalAllocation_clear () {
+    /* left empty purposefully outside debug */
 }
 
 #endif
