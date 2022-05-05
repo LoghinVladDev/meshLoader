@@ -3,6 +3,7 @@
 //
 
 #include "job.h"
+#include <memory.h>
 
 MeshLoader_Result __MeshLoader_Job_construct (
         MeshLoader_Job                          job,
@@ -42,6 +43,8 @@ MeshLoader_Result __MeshLoader_Job_construct (
 
     job->priority   = pCreateInfo->priority;
     job->loadMode   = pCreateInfo->loadMode;
+
+    (void) memcpy ( & job->allocationCallbacks, pAllocationCallbacks, sizeof ( MeshLoader_AllocationCallbacks ) );
 
     return MeshLoader_Result_Success;
 }

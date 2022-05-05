@@ -13,6 +13,7 @@
 struct __MeshLoader_Job {
     __MeshLoader_Thread             thread;
     __MeshLoader_Mutex              jobLock;
+    MeshLoader_AllocationCallbacks  allocationCallbacks;
 
     MeshLoader_MeshLoadModeFlags    loadMode;
     __MeshLoader_String             inputPath;

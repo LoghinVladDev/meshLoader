@@ -31,4 +31,24 @@ extern void MeshLoader_destroyJobs (
         MeshLoader_AllocationCallbacks  const * pAllocationCallbacks
 );
 
+extern MeshLoader_Result MeshLoader_startJobs (
+        MeshLoader_Instance                     instance,
+        MeshLoader_JobsStartInfo        const * pStartInfo
+);
+
+extern MeshLoader_Result MeshLoader_queryJobs (
+        MeshLoader_Instance                     instance,
+        MeshLoader_JobsQueryInfo              * pQueryInfo
+);
+
+extern MeshLoader_Result MeshLoader_getResults (
+        MeshLoader_Instance                     instance,
+        MeshLoader_JobsGetResultInfo          * pResults
+);
+
+extern MeshLoader_Result MeshLoader_anyJobsRunning (
+        MeshLoader_Instance                     instance,
+        MeshLoader_bool                       * pAnyRunning
+);
+
 #endif // __MESH_LOADER_MESH_LOADER_H__

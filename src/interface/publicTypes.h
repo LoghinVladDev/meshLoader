@@ -61,16 +61,11 @@ typedef enum {
     MeshLoader_StructureType_JobsStopInfo           = 0x00000007U,
     MeshLoader_StructureType_JobsTerminateInfo      = 0x00000008U,
     MeshLoader_StructureType_JobsQueryInfo          = 0x00000009U,
-    MeshLoader_StructureType_JobsGetResult          = 0x0000000AU,
+    MeshLoader_StructureType_JobsGetResultInfo      = 0x0000000AU,
 
     MeshLoader_StructureType_CreateJobInfo          = 0x0000000BU,
-    MeshLoader_StructureType_StartJobInfo           = 0x0000000CU,
-    MeshLoader_StructureType_PauseJobInfo           = 0x0000000DU,
-    MeshLoader_StructureType_ResumeJobInfo          = 0x0000000EU,
-    MeshLoader_StructureType_StopJobInfo            = 0x0000000FU,
-    MeshLoader_StructureType_TerminateJobInfo       = 0x00000010U,
     MeshLoader_StructureType_QueryJobInfo           = 0x00000011U,
-    MeshLoader_StructureType_GetJobResult           = 0x00000012U,
+    MeshLoader_StructureType_JobResult              = 0x00000012U,
 
     MeshLoader_StructureType_AllocationNotification = 0x00000013U,
 } MeshLoader_StructureType;
@@ -212,66 +207,41 @@ typedef struct {
 typedef struct {
     MeshLoader_StructureType            structureType;
     void                        const * pNext;
-} MeshLoader_StartJobInfo;
-
-typedef struct {
-    MeshLoader_StructureType            structureType;
-    void                        const * pNext;
     MeshLoader_JobsStartFlags           flags;
     MeshLoader_uint32                   jobCount;
-    MeshLoader_StartJobInfo     const * pStartJobInfos;
+    MeshLoader_Job              const * pJobs;
 } MeshLoader_JobsStartInfo;
-
-typedef struct {
-    MeshLoader_StructureType            structureType;
-    void                        const * pNext;
-} MeshLoader_PauseJobInfo;
 
 typedef struct {
     MeshLoader_StructureType            structureType;
     void                        const * pNext;
     MeshLoader_JobsPauseFlags           flags;
     MeshLoader_uint32                   jobCount;
-    MeshLoader_PauseJobInfo     const * pPauseJobInfos;
+    MeshLoader_Job              const * pJobs;
 } MeshLoader_JobsPauseInfo;
-
-typedef struct {
-    MeshLoader_StructureType            structureType;
-    void                        const * pNext;
-} MeshLoader_ResumeJobInfo;
 
 typedef struct {
     MeshLoader_StructureType            structureType;
     void                        const * pNext;
     MeshLoader_JobsResumeFlags          flags;
     MeshLoader_uint32                   jobCount;
-    MeshLoader_ResumeJobInfo    const * pResumeJobInfos;
+    MeshLoader_Job              const * pJobs;
 } MeshLoader_JobsResumeInfo;
-
-typedef struct {
-    MeshLoader_StructureType            structureType;
-    void                        const * pNext;
-} MeshLoader_StopJobInfo;
 
 typedef struct {
     MeshLoader_StructureType            structureType;
     void                        const * pNext;
     MeshLoader_JobsStopFlags            flags;
     MeshLoader_uint32                   jobCount;
-    MeshLoader_StopJobInfo      const * pStopJobInfos;
+    MeshLoader_Job              const * pJobs;
 } MeshLoader_JobsStopInfo;
-
-typedef struct {
-    MeshLoader_StructureType            structureType;
-    void                        const * pNext;
-} MeshLoader_TerminateJobInfo;
 
 typedef struct {
     MeshLoader_StructureType            structureType;
     void                        const * pNext;
     MeshLoader_JobsTerminateFlags       flags;
     MeshLoader_uint32                   jobCount;
-    MeshLoader_TerminateJobInfo const * pTerminateJobsInfos;
+    MeshLoader_Job              const * pJobs;
 } MeshLoader_JobsTerminateInfo;
 
 typedef struct {
@@ -293,14 +263,14 @@ typedef struct {
     MeshLoader_StructureType            structureType;
     void                              * pNext;
     MeshLoader_Mesh                   * pMesh;
-} MeshLoader_GetJobResult;
+} MeshLoader_JobResult;
 
 typedef struct {
     MeshLoader_StructureType            structureType;
     void                              * pNext;
     MeshLoader_uint32                   jobCount;
-    MeshLoader_GetJobResult           * pGetJobResults;
-} MeshLoader_JobsGetResult;
+    MeshLoader_JobResult              * pGetJobResults;
+} MeshLoader_JobsGetResultInfo;
 
 typedef MeshLoader_Result ( * MeshLoader_CreateInstanceFunction ) (
         MeshLoader_InstanceCreateInfo   const * pCreateInfo,
@@ -311,6 +281,39 @@ typedef MeshLoader_Result ( * MeshLoader_CreateInstanceFunction ) (
 typedef void ( * MeshLoader_DestroyInstanceFunction ) (
         MeshLoader_Instance                     instance,
         MeshLoader_AllocationCallbacks  const * pAllocationCallbacks
+);
+
+typedef MeshLoader_Result ( * MeshLoader_CreateJobsFunction ) (
+        MeshLoader_Instance                     instance,
+        MeshLoader_JobsCreateInfo       const * pCreateInfo,
+        MeshLoader_AllocationCallbacks  const * pAllocationCallbacks
+);
+
+typedef void ( * MeshLoader_DestroyJobsFunction ) (
+        MeshLoader_Instance                     instance,
+        MeshLoader_uint32                       jobCount,
+        MeshLoader_Job                  const * pJobs,
+        MeshLoader_AllocationCallbacks  const * pAllocationCallbacks
+);
+
+typedef MeshLoader_Result ( * MeshLoader_StartJobsFunction ) (
+        MeshLoader_Instance                     instance,
+        MeshLoader_JobsStartInfo        const * pStartInfo
+);
+
+typedef MeshLoader_Result ( * MeshLoader_QueryJobsFunction ) (
+        MeshLoader_Instance                     instance,
+        MeshLoader_JobsQueryInfo              * pQueryInfo
+);
+
+typedef MeshLoader_Result ( * MeshLoader_GetResultsFunction ) (
+        MeshLoader_Instance                     instance,
+        MeshLoader_JobsGetResultInfo          * pResults
+);
+
+typedef MeshLoader_Result ( * MeshLoader_AnyJobsRunningFunction ) (
+        MeshLoader_Instance                     instance,
+        MeshLoader_bool                       * pAnyRunning
 );
 
 #endif // __MESH_LOADER_PUBLIC_TYPES_H__

@@ -70,6 +70,59 @@ int main() {
         return 1;
     }
 
+    MeshLoader_JobsStartInfo startInfo = {
+            .structureType  = MeshLoader_StructureType_JobsStartInfo,
+            .pNext          = NULL,
+            .flags          = MeshLoader_nullFlags,
+            .jobCount       = jobCount,
+            .pJobs          = & jobs[0]
+    };
+
+    MeshLoader_QueryJobInfo queryInfos [jobCount];
+    for ( int i = 0; i < jobCount; ++ i ) {
+        queryInfos[i].structureType = MeshLoader_StructureType_QueryJobInfo;
+        queryInfos[i].pNext         = NULL;
+    }
+
+    MeshLoader_JobsQueryInfo queryInfo = {
+            .structureType  = MeshLoader_StructureType_JobsQueryInfo,
+            .pNext          = NULL,
+            .flags          = MeshLoader_nullFlags,
+            .jobCount       = jobCount,
+            .pQueryJobInfos = & queryInfos[0]
+    };
+
+    MeshLoader_bool anyRunning = MeshLoader_false;
+
+    result = MeshLoader_startJobs (
+            instance,
+            & startInfo
+    );
+
+    if ( result != MeshLoader_Result_Success ) {
+        fprintf ( stderr, "Failed to start jobs" );
+        goto end;
+    }
+
+    do {
+
+        result = MeshLoader_queryJobs ( instance, & queryInfo );
+
+        if ( result != MeshLoader_Result_Success ) {
+            fprintf ( stderr, "Error occurred while querying jobs status" );
+            break;
+        }
+
+        result = MeshLoader_anyJobsRunning ( instance, & anyRunning );
+
+        if ( result != MeshLoader_Result_Success ) {
+            fprintf ( stderr, "Error occurred while waiting for jobs to finish" );
+            break;
+        }
+
+    } while ( anyRunning );
+
+end:
     MeshLoader_destroyJobs ( instance, jobCount, & jobs[0], NULL );
     MeshLoader_destroyInstance ( instance, NULL );
 
