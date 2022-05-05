@@ -17,8 +17,8 @@ extern MeshLoader_Result __MeshLoader_JobPriorityQueue_construct (
             .pNext                      = NULL,
             .pMemory                    = NULL,
             .pOldMemory                 = NULL,
-            .size                       = sizeof ( __MeshLoader_JobPriorityQueue_Entry * ) * capacity,
-            .alignment                  = alignof ( __MeshLoader_JobPriorityQueue_Entry * ),
+            .size                       = sizeof ( __MeshLoader_JobPriorityQueue_Entry ) * capacity,
+            .alignment                  = alignof ( __MeshLoader_JobPriorityQueue_Entry ),
             .allocationScope            = pAllocationCallbacks->allocationScope,
             .explicitMemoryPurpose      = "Creates a Priority Queue Array Base ( Heap )"
     };
@@ -55,7 +55,7 @@ extern MeshLoader_Result __MeshLoader_JobPriorityQueue_construct (
         );
     }
 
-    pQueue->ppEntries   = ( __MeshLoader_JobPriorityQueue_Entry ** ) allocationNotification.pMemory;
+    pQueue->ppEntries   = ( __MeshLoader_JobPriorityQueue_Entry * ) allocationNotification.pMemory;
     pQueue->capacity    = capacity;
     pQueue->length      = 0U;
 
@@ -72,8 +72,8 @@ extern void __MeshLoader_JobPriorityQueue_destruct (
             .pNext                  = NULL,
             .pMemory                = pQueue->ppEntries,
             .pOldMemory             = NULL,
-            .size                   = sizeof ( __MeshLoader_JobPriorityQueue_Entry * ) * pQueue->capacity,
-            .alignment              = alignof ( __MeshLoader_JobPriorityQueue_Entry * ),
+            .size                   = sizeof ( __MeshLoader_JobPriorityQueue_Entry ) * pQueue->capacity,
+            .alignment              = alignof ( __MeshLoader_JobPriorityQueue_Entry ),
             .allocationScope        = pAllocationCallbacks->allocationScope,
             .explicitMemoryPurpose  = "Destroys a Priority Queue Array Base ( Heap )"
     };
