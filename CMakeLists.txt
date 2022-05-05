@@ -8,17 +8,28 @@ set(CMAKE_C_STANDARD 99)
 set (
         MESH_LOADER_IMPLEMENTATION_POSIX_SOURCES
 
-        src/implementation/posix/posixThread.c
         src/implementation/posix/posixMutex.c
-
-        src/implementation/posix/posixThread.h
         src/implementation/posix/posixMutex.h
+
+        src/implementation/posix/posixThread.c
+        src/implementation/posix/posixThread.h
+)
+
+set (
+        MESH_LOADER_IMPLEMENTATION_WIN32_SOURCES
+
+        src/implementation/win32/win32Mutex.c
+        src/implementation/win32/win32Mutex.h
+
+        src/implementation/win32/win32Thread.c
+        src/implementation/win32/win32Thread.h
 )
 
 set (
         MESH_LOADER_IMPLEMENTATION_SOURCES
 
         ${MESH_LOADER_IMPLEMENTATION_POSIX_SOURCES}
+        ${MESH_LOADER_IMPLEMENTATION_WIN32_SOURCES}
 
         src/implementation/instance.h
         src/implementation/instance.c
