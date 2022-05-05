@@ -2,12 +2,12 @@
 // Created by loghin on 5/5/2022.
 //
 
+#if defined(WIN32)
+
 #include <windows.h>
 #include <meshLoader/publicTypes>
 #include <stdalign.h>
 #include "../internalAllocation.h"
-
-#if defined(WIN32)
 
 static CRITICAL_SECTION __MeshLoader_Win32Mutex_moduleLock;
 static MeshLoader_bool  __MeshLoader_Win32Mutex_firstApplyModuleLockCall = MeshLoader_true;

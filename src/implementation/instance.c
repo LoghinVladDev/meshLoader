@@ -8,9 +8,7 @@
 #include "../config/instanceCnf.h"
 #include "instance.h"
 
-static __MeshLoader_Instance_Control __MeshLoader_Instance_control = {
-        .pInstanceList  = NULL
-};
+static __MeshLoader_Instance_Control __MeshLoader_Instance_control;
 
 MeshLoader_Result MeshLoader_createInstance (
         MeshLoader_InstanceCreateInfo   const * pCreateInfo,
@@ -21,6 +19,17 @@ MeshLoader_Result MeshLoader_createInstance (
     MeshLoader_Result            result;
 
     pAllocationCallbacks = __MeshLoader_Utility_nonNullAllocationCallbacks ( pAllocationCallbacks );
+
+    if ( __MeshLoader_Instance_noInstanceExists ( & __MeshLoader_Instance_control ) ) {
+        result = __MeshLoader_Instance_createControl (
+                & __MeshLoader_Instance_control,
+                pAllocationCallbacks
+        );
+
+        if ( result != MeshLoader_Result_Success ) {
+            return result;
+        }
+    }
 
     result = __MeshLoader_Instance_allocateInstance (
             & __MeshLoader_Instance_control,
@@ -34,6 +43,13 @@ MeshLoader_Result MeshLoader_createInstance (
                 newInstance,
                 pAllocationCallbacks
         );
+
+        if ( ! __MeshLoader_Instance_noInstanceExists ( & __MeshLoader_Instance_control ) ) {
+            __MeshLoader_Instance_destroyControl ( &
+                    __MeshLoader_Instance_control,
+                    pAllocationCallbacks
+            );
+        }
 
         return result;
     }
@@ -50,6 +66,13 @@ MeshLoader_Result MeshLoader_createInstance (
                 newInstance,
                 pAllocationCallbacks
         );
+
+        if ( ! __MeshLoader_Instance_noInstanceExists ( & __MeshLoader_Instance_control ) ) {
+            __MeshLoader_Instance_destroyControl (
+                    & __MeshLoader_Instance_control,
+                    pAllocationCallbacks
+            );
+        }
 
         return result;
     }
@@ -76,6 +99,13 @@ void MeshLoader_destroyInstance (
             instance,
             pAllocationCallbacks
     );
+
+    if ( __MeshLoader_Instance_noInstanceExists ( & __MeshLoader_Instance_control ) ) {
+        __MeshLoader_Instance_destroyControl (
+                & __MeshLoader_Instance_control,
+                pAllocationCallbacks
+        );
+    }
 }
 
 static MeshLoader_Result  __MeshLoader_Instance_construct (
@@ -171,7 +201,7 @@ static MeshLoader_Result __MeshLoader_Instance_allocateInstance (
         );
     }
 
-    result = __MeshLoader_applyModuleLock();
+    result = __MeshLoader_Mutex_applyModuleLock();
     if ( result != MeshLoader_Result_Success ) {
 
         allocationNotification.explicitMemoryPurpose    = "Deletes a Node that could not be added due to failure of acquiring the module lock";
@@ -196,7 +226,7 @@ static MeshLoader_Result __MeshLoader_Instance_allocateInstance (
     pNewNode->pNextInstanceNode = pControl->pInstanceList;
     pControl->pInstanceList = pNewNode;
 
-    __MeshLoader_removeModuleLock();
+    __MeshLoader_Mutex_removeModuleLock();
     return MeshLoader_Result_Success;
 }
 
@@ -220,7 +250,7 @@ static void __MeshLoader_Instance_freeInstance (
             .explicitMemoryPurpose  = "Destroys an Instance Context Location, owned by the MeshLoader Component"
     };
 
-    __MeshLoader_applyModuleLock();
+    __MeshLoader_Mutex_applyModuleLock();
 
     if ( pControl->pInstanceList->pNextInstanceNode == NULL || & pControl->pInstanceList->instanceData == pInstance ) {
 
@@ -240,7 +270,7 @@ static void __MeshLoader_Instance_freeInstance (
                 pDeletionCopy
         );
 
-        __MeshLoader_removeModuleLock();
+        __MeshLoader_Mutex_removeModuleLock();
         return;
     }
 
@@ -266,7 +296,7 @@ static void __MeshLoader_Instance_freeInstance (
                     pDeletionCopy
             );
 
-            __MeshLoader_removeModuleLock();
+            __MeshLoader_Mutex_removeModuleLock();
             return;
         }
 
@@ -749,4 +779,24 @@ static void __MeshLoader_Instance_freeNextJobNode (
             pAllocationCallbacks->pUserData,
             pNode
     );
+}
+
+static MeshLoader_Result __MeshLoader_Instance_createControl (
+        __MeshLoader_Instance_Control         * pControl,
+        MeshLoader_AllocationCallbacks  const * pAllocationCallbacks
+) {
+    (void) pAllocationCallbacks;
+
+    pControl->pInstanceList = NULL;
+    return MeshLoader_Result_Success;
+}
+
+static void __MeshLoader_Instance_destroyControl (
+        __MeshLoader_Instance_Control   const * pControl,
+        MeshLoader_AllocationCallbacks  const * pAllocationCallbacks
+) {
+    (void) pControl;
+
+    __MeshLoader_Mutex_clearModuleLock();
+    __MeshLoader_InternalAllocation_clear ();
 }

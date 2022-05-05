@@ -16,7 +16,7 @@ struct __MeshLoader_Posix_Mutex {
     pthread_mutex_t mutex;
 };
 
-MeshLoader_Result __MeshLoader_applyModuleLock () {
+MeshLoader_Result __MeshLoader_Mutex_applyModuleLock () {
     int mutexRetVal;
 
     if ( __MeshLoader_PosixMutex_firstApplyModuleLockCall ) {
@@ -33,7 +33,7 @@ MeshLoader_Result __MeshLoader_applyModuleLock () {
     return MeshLoader_Result_Success;
 }
 
-void __MeshLoader_removeModuleLock () {
+void __MeshLoader_Mutex_removeModuleLock () {
     pthread_mutex_unlock ( & __MeshLoader_PosixMutex_moduleLock );
 }
 
@@ -145,6 +145,12 @@ void __MeshLoader_Mutex_unlock (
 ) {
 
     pthread_mutex_unlock ( & pMutex->mutex );
+}
+
+void __MeshLoader_Mutex_clearModuleLock () {
+
+    pthread_mutex_destroy ( & __MeshLoader_PosixMutex_moduleLock );
+    __MeshLoader_PosixMutex_firstApplyModuleLockCall = MeshLoader_true;
 }
 
 #endif

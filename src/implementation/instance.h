@@ -42,6 +42,22 @@ typedef struct {
     __MeshLoader_Instance_Node      * pInstanceList;
 } __MeshLoader_Instance_Control;
 
+static inline MeshLoader_bool __MeshLoader_Instance_noInstanceExists (
+        __MeshLoader_Instance_Control const * pControl
+) {
+    return pControl->pInstanceList == NULL;
+}
+
+static MeshLoader_Result __MeshLoader_Instance_createControl (
+        __MeshLoader_Instance_Control         *,
+        MeshLoader_AllocationCallbacks  const *
+);
+
+static void __MeshLoader_Instance_destroyControl (
+        __MeshLoader_Instance_Control   const *,
+        MeshLoader_AllocationCallbacks  const *
+);
+
 static MeshLoader_Result __MeshLoader_Instance_construct (
         MeshLoader_Instance,
         MeshLoader_InstanceCreateInfo   const *,

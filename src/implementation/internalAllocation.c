@@ -9,6 +9,40 @@
 #include <stdio.h>
 
 #include <meshLoader/utility>
+#include <stdalign.h>
+#include <memory.h>
+
+#include "mutex.h"
+
+typedef struct __MeshLoader_InternalAllocation_MemoryTrackingNode {
+    struct __MeshLoader_InternalAllocation_MemoryTrackingNode * pNext;
+    MeshLoader_AllocationNotification                           notification;
+} __MeshLoader_InternalAllocation_MemoryTrackingNode;
+
+typedef struct {
+    __MeshLoader_InternalAllocation_MemoryTrackingNode * pHead;
+    MeshLoader_uint32                                    count;
+    MeshLoader_uint32                                    mutexInitialized;
+    __MeshLoader_Mutex                                   lock;
+} __MeshLoader_InternalAllocation_MemoryTrackingList;
+
+static __MeshLoader_InternalAllocation_MemoryTrackingList __MeshLoader_InternalAllocation_memoryTrackingList = {
+        .pHead              = NULL,
+        .count              = 0U,
+        .mutexInitialized   = MeshLoader_false
+};
+
+static void __MeshLoader_InternalAllocation_trackAllocation (
+        MeshLoader_AllocationNotification   const *
+);
+
+static void __MeshLoader_InternalAllocation_trackReallocation (
+        MeshLoader_AllocationNotification   const *
+);
+
+static void __MeshLoader_InternalAllocation_trackFree (
+        MeshLoader_AllocationNotification   const *
+);
 
 static void * __MeshLoader_InternalAllocation_allocate (
         void                              *,
@@ -135,6 +169,8 @@ static void __MeshLoader_InternalAllocation_allocationNotify (
 ) {
     (void) pUserData;
 
+    __MeshLoader_InternalAllocation_trackAllocation ( pNotification );
+
     fprintf (
             stdout,
             "[%s:%d] Allocation of %llu bytes -> %#020llx, aligned at %llu, scope : %s. Purpose : %s\n",
@@ -153,6 +189,8 @@ static void __MeshLoader_InternalAllocation_reallocationNotify (
         MeshLoader_AllocationNotification   const * pNotification
 ) {
     (void) pUserData;
+
+    __MeshLoader_InternalAllocation_trackReallocation ( pNotification );
 
     fprintf (
             stdout,
@@ -174,6 +212,8 @@ static void __MeshLoader_InternalAllocation_freeNotify (
 ) {
     (void) pUserData;
 
+    __MeshLoader_InternalAllocation_trackFree ( pNotification );
+
     fprintf (
             stdout,
             "[%s:%d] Free of %#020llx. Purpose : %s\n",
@@ -181,6 +221,206 @@ static void __MeshLoader_InternalAllocation_freeNotify (
             __LINE__,
             ( MeshLoader_size ) pNotification->pMemory,
             ( pNotification->explicitMemoryPurpose == NULL ? "Unspecified" : pNotification->explicitMemoryPurpose )
+    );
+}
+
+static void * __MeshLoader_InternalAllocation_trackingAllocateFunction (
+        void                              * pUserData,
+        MeshLoader_size                     size,
+        MeshLoader_size                     alignment,
+        MeshLoader_SystemAllocationScope    scope
+) {
+    (void) pUserData;
+    (void) alignment;
+    (void) scope;
+
+    return malloc ( size );
+}
+
+static void * __MeshLoader_InternalAllocation_trackingReallocateFunction (
+        void                              * pUserData,
+        void                              * pOriginal,
+        MeshLoader_size                     size,
+        MeshLoader_size                     alignment,
+        MeshLoader_SystemAllocationScope    scope
+) {
+    (void) pUserData;
+    (void) alignment;
+    (void) scope;
+
+    return realloc ( pOriginal, size );
+}
+
+static void __MeshLoader_InternalAllocation_trackingFreeFunction (
+        void                              * pUserData,
+        void                              * pMemory
+) {
+    (void) pUserData;
+
+    free ( pMemory );
+}
+
+static MeshLoader_AllocationCallbacks const __MeshLoader_InternalAllocation_trackingAllocationCallbacks = {
+        .pUserData                                  = NULL,
+        .allocationFunction                         = & __MeshLoader_InternalAllocation_trackingAllocateFunction,
+        .reallocationFunction                       = & __MeshLoader_InternalAllocation_trackingReallocateFunction,
+        .freeFunction                               = & __MeshLoader_InternalAllocation_trackingFreeFunction,
+        .internalAllocationNotificationFunction     = NULL,
+        .internalReallocationNotificationFunction   = NULL,
+        .internalFreeNotificationFunction           = NULL
+};
+
+static __MeshLoader_ScopedAllocationCallbacks const __MeshLoader_InternalAllocation_trackingScopedAllocationCallbacks = {
+        .pAllocationCallbacks       = & __MeshLoader_InternalAllocation_trackingAllocationCallbacks,
+        .allocationScope            = MeshLoader_SystemAllocationScope_Component,
+        .explicitAllocationPurpose  = NULL
+};
+
+static inline void __MeshLoader_InternalAllocation_initAllocationTracking () {
+
+    __MeshLoader_InternalAllocation_memoryTrackingList.count = 0U;
+    __MeshLoader_InternalAllocation_memoryTrackingList.pHead = NULL;
+
+    if ( ! __MeshLoader_InternalAllocation_memoryTrackingList.mutexInitialized ) {
+        (void) __MeshLoader_Mutex_create(
+                & __MeshLoader_InternalAllocation_memoryTrackingList.lock,
+                & __MeshLoader_InternalAllocation_trackingScopedAllocationCallbacks
+        );
+
+        __MeshLoader_InternalAllocation_memoryTrackingList.mutexInitialized = MeshLoader_true;
+    }
+}
+
+static inline MeshLoader_bool __MeshLoader_InternalAllocation_allocationTrackingListEmpty () {
+    return __MeshLoader_InternalAllocation_memoryTrackingList.pHead == NULL;
+}
+
+static void __MeshLoader_InternalAllocation_trackAllocation (
+        MeshLoader_AllocationNotification   const * pNotification
+) {
+    if ( __MeshLoader_InternalAllocation_allocationTrackingListEmpty () ) {
+        __MeshLoader_InternalAllocation_initAllocationTracking ();
+    }
+
+    (void) __MeshLoader_Mutex_lock ( __MeshLoader_InternalAllocation_memoryTrackingList.lock );
+
+    __MeshLoader_InternalAllocation_MemoryTrackingNode * pNode = ( __MeshLoader_InternalAllocation_MemoryTrackingNode * ) __MeshLoader_InternalAllocation_trackingAllocateFunction (
+            NULL,
+            sizeof ( __MeshLoader_InternalAllocation_MemoryTrackingNode ),
+            alignof ( __MeshLoader_InternalAllocation_MemoryTrackingNode ),
+            MeshLoader_SystemAllocationScope_Component
+    );
+
+    (void) memcpy ( & pNode->notification, pNotification, sizeof ( MeshLoader_AllocationNotification ) );
+    pNode->pNext = __MeshLoader_InternalAllocation_memoryTrackingList.pHead;
+    __MeshLoader_InternalAllocation_memoryTrackingList.pHead = pNode;
+    ++ __MeshLoader_InternalAllocation_memoryTrackingList.count;
+
+    __MeshLoader_Mutex_unlock ( __MeshLoader_InternalAllocation_memoryTrackingList.lock );
+}
+
+static void __MeshLoader_InternalAllocation_trackReallocation (
+        MeshLoader_AllocationNotification   const * pNotification
+) {
+
+    (void) __MeshLoader_Mutex_lock ( __MeshLoader_InternalAllocation_memoryTrackingList.lock );
+    __MeshLoader_InternalAllocation_MemoryTrackingNode * pHead = __MeshLoader_InternalAllocation_memoryTrackingList.pHead;
+
+    while ( pHead != NULL ) {
+
+        if ( pHead->notification.pMemory == pNotification->pOldMemory ) {
+            pHead->notification.pMemory                 = pNotification->pMemory;
+            pHead->notification.size                    = pNotification->size;
+            pHead->notification.alignment               = pNotification->alignment;
+            pHead->notification.allocationScope         = pNotification->allocationScope;
+            pHead->notification.explicitMemoryPurpose   = pNotification->explicitMemoryPurpose;
+
+            __MeshLoader_Mutex_unlock ( __MeshLoader_InternalAllocation_memoryTrackingList.lock );
+            return;
+        }
+
+        pHead = pHead->pNext;
+    }
+
+    __MeshLoader_Mutex_unlock ( __MeshLoader_InternalAllocation_memoryTrackingList.lock );
+}
+
+static void __MeshLoader_InternalAllocation_trackFree (
+        MeshLoader_AllocationNotification   const * pNotification
+) {
+
+    (void) __MeshLoader_Mutex_lock ( __MeshLoader_InternalAllocation_memoryTrackingList.lock );
+
+    if ( __MeshLoader_InternalAllocation_memoryTrackingList.pHead->notification.pMemory == pNotification->pMemory ) {
+        __MeshLoader_InternalAllocation_MemoryTrackingNode * pCopy = __MeshLoader_InternalAllocation_memoryTrackingList.pHead;
+        __MeshLoader_InternalAllocation_memoryTrackingList.pHead = __MeshLoader_InternalAllocation_memoryTrackingList.pHead->pNext;
+
+        __MeshLoader_InternalAllocation_trackingFreeFunction (
+                NULL,
+                pCopy
+        );
+
+        -- __MeshLoader_InternalAllocation_memoryTrackingList.count;
+        __MeshLoader_Mutex_unlock ( __MeshLoader_InternalAllocation_memoryTrackingList.lock );
+        return;
+    }
+
+    __MeshLoader_InternalAllocation_MemoryTrackingNode * pHead = __MeshLoader_InternalAllocation_memoryTrackingList.pHead;
+    while ( pHead != NULL && pHead->pNext != NULL ) {
+
+        if ( pHead->pNext->notification.pMemory == pNotification->pMemory ) {
+            __MeshLoader_InternalAllocation_MemoryTrackingNode * pCopy = pHead->pNext;
+            pHead->pNext = pHead->pNext->pNext;
+
+            __MeshLoader_InternalAllocation_trackingFreeFunction (
+                    NULL,
+                    pCopy
+            );
+
+            -- __MeshLoader_InternalAllocation_memoryTrackingList.count;
+            __MeshLoader_Mutex_unlock ( __MeshLoader_InternalAllocation_memoryTrackingList.lock );
+            return;
+        }
+
+        pHead = pHead->pNext;
+    }
+
+    __MeshLoader_Mutex_unlock ( __MeshLoader_InternalAllocation_memoryTrackingList.lock );
+}
+
+void __MeshLoader_InternalAllocation_clear () {
+
+    if ( __MeshLoader_InternalAllocation_memoryTrackingList.count > 0U ) {
+        fprintf (
+                stderr,
+                "Warning : %u addresses not freed:\n",
+                __MeshLoader_InternalAllocation_memoryTrackingList.count
+        );
+    }
+
+    while ( __MeshLoader_InternalAllocation_memoryTrackingList.pHead != NULL ) {
+
+        fprintf (
+                stderr,
+                "\t@ %#020llx, size = %llu, alignment = %llu, scope = %s, originalPurpose = %s\n",
+                ( MeshLoader_size ) __MeshLoader_InternalAllocation_memoryTrackingList.pHead->notification.pMemory,
+                __MeshLoader_InternalAllocation_memoryTrackingList.pHead->notification.size,
+                __MeshLoader_InternalAllocation_memoryTrackingList.pHead->notification.alignment,
+                MeshLoader_SystemAllocationScope_toString ( __MeshLoader_InternalAllocation_memoryTrackingList.pHead->notification.allocationScope ),
+                __MeshLoader_InternalAllocation_memoryTrackingList.pHead->notification.explicitMemoryPurpose
+        );
+
+        __MeshLoader_InternalAllocation_MemoryTrackingNode * pCopy = __MeshLoader_InternalAllocation_memoryTrackingList.pHead;
+        __MeshLoader_InternalAllocation_memoryTrackingList.pHead = __MeshLoader_InternalAllocation_memoryTrackingList.pHead->pNext;
+        __MeshLoader_InternalAllocation_trackingFreeFunction (
+                NULL,
+                pCopy
+        );
+    }
+
+    __MeshLoader_Mutex_destroy (
+            __MeshLoader_InternalAllocation_memoryTrackingList.lock,
+            & __MeshLoader_InternalAllocation_trackingScopedAllocationCallbacks
     );
 }
 

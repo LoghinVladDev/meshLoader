@@ -8,8 +8,9 @@
 #include <meshLoader/publicTypes>
 #include "../internalAllocation.h"
 
-extern MeshLoader_Result __MeshLoader_applyModuleLock ();
-extern void __MeshLoader_removeModuleLock ();
+extern MeshLoader_Result __MeshLoader_Mutex_applyModuleLock ();
+extern void __MeshLoader_Mutex_removeModuleLock ();
+extern void __MeshLoader_Mutex_clearModuleLock ();
 
 extern MeshLoader_Result __MeshLoader_Mutex_create (
         struct __MeshLoader_Posix_Mutex              **,

@@ -14,5 +14,6 @@ typedef struct {
 } __MeshLoader_ScopedAllocationCallbacks;
 
 extern MeshLoader_AllocationCallbacks const * __MeshLoader_InternalAllocation_getCallbacks ();
+extern void __MeshLoader_InternalAllocation_clear ();
 
 #endif // __MESH_LOADER_INTERNAL_ALLOCATION_H__
