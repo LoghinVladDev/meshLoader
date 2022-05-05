@@ -146,4 +146,14 @@ static void __MeshLoader_Instance_freeNextJobNode (
         MeshLoader_AllocationCallbacks  const *
 );
 
+static void __MeshLoader_Instance_freeAllJobs (
+        MeshLoader_Instance,
+        MeshLoader_AllocationCallbacks  const *
+);
+
+static void __MeshLoader_Instance_freeAllJobsInNode (
+        __MeshLoader_Instance_JobNode         *,
+        MeshLoader_AllocationCallbacks  const *
+);
+
 #endif // __MESH_LOADER_INSTANCE_H__

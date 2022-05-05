@@ -156,6 +156,11 @@ static void __MeshLoader_Instance_destruct (
             .explicitAllocationPurpose  = NULL
     };
 
+    __MeshLoader_Instance_freeAllJobs (
+            pInstance,
+            pAllocationCallbacks
+    );
+
     __MeshLoader_Mutex_destroy (
             pInstance->instanceLock,
             & scopedAllocationCallbacks
@@ -798,7 +803,87 @@ static void __MeshLoader_Instance_destroyControl (
         MeshLoader_AllocationCallbacks  const * pAllocationCallbacks
 ) {
     (void) pControl;
+    (void) pAllocationCallbacks;
 
     __MeshLoader_Mutex_clearModuleLock();
     __MeshLoader_InternalAllocation_clear ();
+}
+
+static void __MeshLoader_Instance_freeAllJobs (
+        MeshLoader_Instance                     instance,
+        MeshLoader_AllocationCallbacks  const * pAllocationCallbacks
+) {
+    MeshLoader_AllocationNotification allocationNotification = {
+            .structureType  = MeshLoader_StructureType_AllocationNotification,
+            .pNext          = NULL,
+            .pMemory        = NULL,
+            .pOldMemory     = NULL,
+            .size           = sizeof ( __MeshLoader_Instance_JobNode ),
+            .alignment      = alignof ( __MeshLoader_Instance_JobNode ),
+            .allocationScope    = MeshLoader_SystemAllocationScope_Instance,
+            .explicitMemoryPurpose  = "Clears all Jobs in a Job Node at an Instance's Destruction"
+    };
+
+    while ( instance->jobList != NULL ) {
+
+        __MeshLoader_Instance_freeAllJobsInNode (
+                instance->jobList,
+                pAllocationCallbacks
+        );
+
+        allocationNotification.pMemory = instance->jobList;
+        instance->jobList = instance->jobList->pNextJobNode;
+
+        if ( pAllocationCallbacks->internalFreeNotificationFunction != NULL ) {
+            pAllocationCallbacks->internalFreeNotificationFunction (
+                    pAllocationCallbacks->pUserData,
+                    & allocationNotification
+            );
+        }
+
+        pAllocationCallbacks->freeFunction (
+                pAllocationCallbacks->pUserData,
+                allocationNotification.pMemory
+        );
+    }
+}
+
+static void __MeshLoader_Instance_freeAllJobsInNode (
+        __MeshLoader_Instance_JobNode         * pNode,
+        MeshLoader_AllocationCallbacks  const * pAllocationCallbacks
+) {
+
+    MeshLoader_uint32                   const flagValueMax              = 1U << 31U;
+    MeshLoader_AllocationNotification         allocationNotification    = {
+            .structureType                  = MeshLoader_StructureType_AllocationNotification,
+            .pNext                          = NULL,
+            .pMemory                        = pNode,
+            .pOldMemory                     = NULL,
+            .size                           = sizeof ( __MeshLoader_Instance_JobNode ),
+            .alignment                      = alignof ( __MeshLoader_Instance_JobNode ),
+            .allocationScope                = MeshLoader_SystemAllocationScope_Instance,
+            .explicitMemoryPurpose          = "Destroys a Job Node holding 32 Job Instances"
+    };
+
+    for ( MeshLoader_uint32 flagValue = 1U << 0U, flagIndex = 0U; MeshLoader_true; flagValue <<= 1U, ++ flagIndex ) {
+
+        if ( ( pNode->nodeUsage & flagValue ) != 0U ) {
+
+            __MeshLoader_Job_destruct (
+                    & pNode->jobs [ flagIndex ],
+                    pAllocationCallbacks
+            );
+        }
+
+        if ( flagValue == flagValueMax ) {
+            break;
+        }
+    }
+
+    if ( pAllocationCallbacks->internalFreeNotificationFunction != NULL ) {
+        pAllocationCallbacks->internalFreeNotificationFunction (
+                pAllocationCallbacks->pUserData,
+                & allocationNotification
+        );
+    }
 }
