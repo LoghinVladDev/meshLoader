@@ -8,16 +8,14 @@
 #include <meshLoader/publicTypes>
 #include "thread.h"
 #include "mutex.h"
-#include "string.h"
+#include "jobDispatch.h"
 
 struct __MeshLoader_Job {
-    __MeshLoader_Thread             thread;
-    __MeshLoader_Mutex              jobLock;
-    MeshLoader_AllocationCallbacks  allocationCallbacks;
+    __MeshLoader_Thread                 thread;
+    __MeshLoader_Mutex                  jobLock;
+    float                               priority;
 
-    MeshLoader_MeshLoadModeFlags    loadMode;
-    __MeshLoader_String             inputPath;
-    float                           priority;
+    __MeshLoader_JobDispatch_Context    context;
 };
 
 extern MeshLoader_Result __MeshLoader_Job_construct (

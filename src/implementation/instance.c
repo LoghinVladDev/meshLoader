@@ -129,6 +129,21 @@ static MeshLoader_Result  __MeshLoader_Instance_construct (
         return result;
     }
 
+    result = __MeshLoader_JobPriorityQueue_construct (
+            & pInstance->jobPriorityQueue,
+            pCreateInfo->maxWorkerThreadCount,
+            & scopedAllocationCallbacks
+    );
+
+    if ( result != MeshLoader_Result_Success ) {
+        __MeshLoader_Mutex_destroy (
+                pInstance->instanceLock,
+                & scopedAllocationCallbacks
+        );
+
+        return result;
+    }
+
     pInstance->maxThreadCount           = pCreateInfo->maxWorkerThreadCount;
     pInstance->jobList                  = NULL;
 
@@ -159,6 +174,11 @@ static void __MeshLoader_Instance_destruct (
     __MeshLoader_Instance_freeAllJobs (
             pInstance,
             pAllocationCallbacks
+    );
+
+    __MeshLoader_JobPriorityQueue_destruct (
+            & pInstance->jobPriorityQueue,
+            & scopedAllocationCallbacks
     );
 
     __MeshLoader_Mutex_destroy (

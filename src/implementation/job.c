@@ -18,7 +18,7 @@ MeshLoader_Result __MeshLoader_Job_construct (
     };
 
     result = __MeshLoader_String_createFromStringLiteral (
-            & job->inputPath,
+            & job->context.inputPath,
             pCreateInfo->inputPath,
             & scopedAllocationCallbacks
     );
@@ -34,17 +34,17 @@ MeshLoader_Result __MeshLoader_Job_construct (
 
     if ( result != MeshLoader_Result_Success ) {
         __MeshLoader_String_destroy (
-                & job->inputPath,
+                & job->context.inputPath,
                 & scopedAllocationCallbacks
         );
 
         return result;
     }
 
-    job->priority   = pCreateInfo->priority;
-    job->loadMode   = pCreateInfo->loadMode;
+    job->priority           = pCreateInfo->priority;
+    job->context.loadMode   = pCreateInfo->loadMode;
 
-    (void) memcpy ( & job->allocationCallbacks, pAllocationCallbacks, sizeof ( MeshLoader_AllocationCallbacks ) );
+    (void) memcpy ( & job->context.allocationCallbacks, pAllocationCallbacks, sizeof ( MeshLoader_AllocationCallbacks ) );
 
     return MeshLoader_Result_Success;
 }
@@ -65,7 +65,7 @@ void __MeshLoader_Job_destruct (
     );
 
     __MeshLoader_String_destroy (
-            & job->inputPath,
+            & job->context.inputPath,
             & scopedAllocationCallbacks
     );
 }
