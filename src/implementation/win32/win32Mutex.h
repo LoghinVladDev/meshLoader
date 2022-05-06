@@ -8,8 +8,8 @@
 #include <meshLoader/publicTypes>
 #include "../internalAllocation.h"
 
-extern MeshLoader_Result __MeshLoader_applyModuleLock ();
-extern void __MeshLoader_removeModuleLock ();
+extern MeshLoader_Result __MeshLoader_Mutex_applyModuleLock ();
+extern void __MeshLoader_Mutex_removeModuleLock ();
 
 extern MeshLoader_Result __MeshLoader_Mutex_create (
         struct __MeshLoader_Win32_Mutex              **,
@@ -28,5 +28,7 @@ extern MeshLoader_Result __MeshLoader_Mutex_lock (
 extern void __MeshLoader_Mutex_unlock (
         struct __MeshLoader_Win32_Mutex *
 );
+
+extern void __MeshLoader_Mutex_clearModuleLock ();
 
 #endif // __MESH_LOADER_WIN32_MUTEX_H__

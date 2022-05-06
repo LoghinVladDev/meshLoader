@@ -16,7 +16,7 @@ struct __MeshLoader_Win32_Mutex {
     CRITICAL_SECTION mutex;
 };
 
-MeshLoader_Result __MeshLoader_applyModuleLock () {
+MeshLoader_Result __MeshLoader_Mutex_applyModuleLock () {
     if ( __MeshLoader_Win32Mutex_firstApplyModuleLockCall ) {
         InitializeCriticalSection ( & __MeshLoader_Win32Mutex_moduleLock );
         __MeshLoader_Win32Mutex_firstApplyModuleLockCall = MeshLoader_false;
@@ -26,7 +26,7 @@ MeshLoader_Result __MeshLoader_applyModuleLock () {
     return MeshLoader_Result_Success;
 }
 
-void __MeshLoader_removeModuleLock () {
+void __MeshLoader_Mutex_removeModuleLock () {
     LeaveCriticalSection ( & __MeshLoader_Win32Mutex_moduleLock );
 }
 
@@ -117,6 +117,12 @@ void __MeshLoader_Mutex_unlock (
 ) {
 
     LeaveCriticalSection ( & pMutex->mutex );
+}
+
+void __MeshLoader_Mutex_clearModuleLock () {
+
+    DeleteCriticalSection ( & __MeshLoader_Win32Mutex_moduleLock );
+    __MeshLoader_Win32Mutex_firstApplyModuleLockCall = MeshLoader_false;
 }
 
 #endif

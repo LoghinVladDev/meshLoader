@@ -572,6 +572,8 @@ static MeshLoader_Result __MeshLoader_Instance_allocateJobNode (
     ( * pNewNode )->pNextJobNode = instance->jobList;
     instance->jobList = * pNewNode;
 
+    ( * pNewNode )->nodeUsage = MeshLoader_nullFlags;
+
     return MeshLoader_Result_Success;
 }
 
