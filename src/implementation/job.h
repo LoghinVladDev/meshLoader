@@ -10,12 +10,18 @@
 #include "mutex.h"
 #include "jobDispatch.h"
 
+typedef struct {
+    MeshLoader_AllocationCallbacks  allocationCallbacks;
+    MeshLoader_MeshLoadModeFlags    loadMode;
+    __MeshLoader_String             inputPath;
+} __MeshLoader_Job_RuntimeContext;
+
 struct __MeshLoader_Job {
     __MeshLoader_Thread                 thread;
     __MeshLoader_Mutex                  jobLock;
     float                               priority;
 
-    __MeshLoader_JobDispatch_Context    context;
+    __MeshLoader_Job_RuntimeContext     context;
 };
 
 extern MeshLoader_Result __MeshLoader_Job_construct (

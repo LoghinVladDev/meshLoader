@@ -21,8 +21,6 @@ struct __MeshLoader_Instance {
     __MeshLoader_Mutex              instanceLock;
     __MeshLoader_Instance_JobList   jobList;
 
-    __MeshLoader_JobPriorityQueue   jobPriorityQueue;
-
 #if MESH_LOADER_DEBUG_MODE
 
     MeshLoader_uint32               totalJobCount;

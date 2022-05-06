@@ -11,8 +11,8 @@
 #include "mutex.h"
 
 typedef struct {
-    struct __MeshLoader_Job   * pJob;
-    float                       priority;
+    __MeshLoader_Job_RuntimeContext   * pContext;
+    float                               priority;
 } __MeshLoader_JobPriorityQueue_Entry;
 
 typedef struct {
@@ -33,5 +33,27 @@ extern void __MeshLoader_JobPriorityQueue_destruct (
         __MeshLoader_JobPriorityQueue           const *,
         __MeshLoader_ScopedAllocationCallbacks  const *
 );
+
+extern MeshLoader_Result __MeshLoader_JobPriorityQueue_push (
+        __MeshLoader_JobPriorityQueue                 *,
+        __MeshLoader_Job_RuntimeContext               *,
+        float
+);
+
+extern MeshLoader_Result __MeshLoader_JobPriorityQueue_pop (
+        __MeshLoader_JobPriorityQueue                 *,
+        __MeshLoader_Job_RuntimeContext              **
+);
+
+extern MeshLoader_Result __MeshLoader_JobPriorityQueue_peek (
+        __MeshLoader_JobPriorityQueue           const *,
+        __MeshLoader_JobPriorityQueue_Entry    const **
+);
+
+static inline MeshLoader_bool __MeshLoader_JobPriorityQueue_empty (
+        __MeshLoader_JobPriorityQueue           const * pQueue
+) {
+    return pQueue->length == 0U;
+}
 
 #endif // __MESH_LOADER_JOB_PRIORITY_QUEUE_H__
