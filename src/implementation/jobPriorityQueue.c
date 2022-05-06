@@ -55,7 +55,7 @@ extern MeshLoader_Result __MeshLoader_JobPriorityQueue_construct (
         );
     }
 
-    pQueue->ppEntries   = ( __MeshLoader_JobPriorityQueue_Entry * ) allocationNotification.pMemory;
+    pQueue->pEntries    = ( __MeshLoader_JobPriorityQueue_Entry * ) allocationNotification.pMemory;
     pQueue->capacity    = capacity;
     pQueue->length      = 0U;
 
@@ -70,7 +70,7 @@ extern void __MeshLoader_JobPriorityQueue_destruct (
     MeshLoader_AllocationNotification allocationNotification = {
             .structureType          = MeshLoader_StructureType_AllocationNotification,
             .pNext                  = NULL,
-            .pMemory                = pQueue->ppEntries,
+            .pMemory                = pQueue->pEntries,
             .pOldMemory             = NULL,
             .size                   = sizeof ( __MeshLoader_JobPriorityQueue_Entry ) * pQueue->capacity,
             .alignment              = alignof ( __MeshLoader_JobPriorityQueue_Entry ),
@@ -94,4 +94,110 @@ extern void __MeshLoader_JobPriorityQueue_destruct (
             pQueue->lock,
             pAllocationCallbacks
     );
+}
+
+MeshLoader_Result __MeshLoader_JobPriorityQueue_peek (
+        __MeshLoader_JobPriorityQueue           const * pQueue,
+        __MeshLoader_JobPriorityQueue_Entry    const ** ppEntry
+) {
+
+    if ( __MeshLoader_JobPriorityQueue_empty ( pQueue ) ) {
+        return MeshLoader_Result_PriorityQueueEmpty;
+    }
+
+    * ppEntry = & pQueue->pEntries[0];
+    return MeshLoader_Result_Success;
+}
+
+static inline void __MeshLoader_JobPriorityQueue_swap (
+        __MeshLoader_JobPriorityQueue_Entry * pLeftEntry,
+        __MeshLoader_JobPriorityQueue_Entry * pRightEntry
+) {
+    __MeshLoader_JobPriorityQueue_Entry auxiliary   = * pLeftEntry;
+    * pLeftEntry                                    = * pRightEntry;
+    * pRightEntry                                   = auxiliary;
+}
+
+MeshLoader_Result __MeshLoader_JobPriorityQueue_push (
+        __MeshLoader_JobPriorityQueue   * pQueue,
+        __MeshLoader_Job_RuntimeContext * pRuntimeContext,
+        float                             priority
+) {
+
+    MeshLoader_uint32 lastIndex     = pQueue->length;
+    MeshLoader_uint32 parentIndex   = ( lastIndex - 1U ) / 2U;
+
+    ++ pQueue->length;
+    pQueue->pEntries [ lastIndex ].pContext = pRuntimeContext;
+    pQueue->pEntries [ lastIndex ].priority = priority;
+
+    while (
+            lastIndex != 0U &&
+            pQueue->pEntries [ parentIndex ].priority < pQueue->pEntries [ lastIndex ].priority
+    ) {
+
+        __MeshLoader_JobPriorityQueue_swap (
+                & pQueue->pEntries [ parentIndex ],
+                & pQueue->pEntries [ lastIndex ]
+        );
+
+        lastIndex   = parentIndex;
+        parentIndex = ( lastIndex - 1 ) / 2;
+    }
+
+    return MeshLoader_Result_Success;
+}
+
+MeshLoader_Result __MeshLoader_JobPriorityQueue_pop (
+        __MeshLoader_JobPriorityQueue       * pQueue,
+        __MeshLoader_Job_RuntimeContext    ** ppRuntimeContext
+) {
+
+    if ( __MeshLoader_JobPriorityQueue_empty ( pQueue ) ) {
+        return MeshLoader_Result_PriorityQueueEmpty;
+    }
+
+    * ppRuntimeContext = pQueue->pEntries [ 0U ].pContext;
+
+    if ( pQueue->length == 1U ) {
+        -- pQueue->length;
+        return MeshLoader_Result_Success;
+    }
+
+    pQueue->pEntries[0] = pQueue->pEntries [ pQueue->length - 1U ];
+    -- pQueue->length;
+
+    MeshLoader_uint32 rootIndex = 0U;
+
+    while ( MeshLoader_true ) {
+        MeshLoader_uint32 leftIndex     = 2U * rootIndex + 1U;
+        MeshLoader_uint32 rightIndex    = 2U * rootIndex + 2U;
+        MeshLoader_uint32 smallestIndex = rootIndex;
+
+        if (
+                leftIndex < pQueue->length &&
+                pQueue->pEntries [ leftIndex ].priority > pQueue->pEntries [ smallestIndex ].priority
+        ) {
+            smallestIndex = leftIndex;
+        }
+
+        if (
+                rightIndex < pQueue->length &&
+                pQueue->pEntries [ rightIndex ].priority > pQueue->pEntries [ smallestIndex ].priority
+        ) {
+            smallestIndex = rightIndex;
+        }
+
+        if ( smallestIndex == rootIndex ) {
+            break;
+        } else {
+
+            __MeshLoader_JobPriorityQueue_swap (
+                    & pQueue->pEntries [ rootIndex ],
+                    & pQueue->pEntries [ smallestIndex ]
+            );
+
+            rootIndex = smallestIndex;
+        }
+    }
 }

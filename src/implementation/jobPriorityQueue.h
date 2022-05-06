@@ -16,7 +16,7 @@ typedef struct {
 } __MeshLoader_JobPriorityQueue_Entry;
 
 typedef struct {
-    __MeshLoader_JobPriorityQueue_Entry   * ppEntries;
+    __MeshLoader_JobPriorityQueue_Entry   * pEntries;
     MeshLoader_uint32                       length;
     MeshLoader_uint32                       capacity;
 

@@ -86,6 +86,7 @@ typedef enum {
     MeshLoader_Result_TooManyObjects                = 0x00000004U,
     MeshLoader_Result_OutOfMemory                   = 0x00000005U,
     MeshLoader_Result_MutexError                    = 0x00000006U,
+    MeshLoader_Result_PriorityQueueEmpty            = 0x00000007U,
 } MeshLoader_Result;
 
 typedef enum {
