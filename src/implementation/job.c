@@ -44,8 +44,6 @@ MeshLoader_Result __MeshLoader_Job_construct (
     job->priority           = pCreateInfo->priority;
     job->context.loadMode   = pCreateInfo->loadMode;
 
-    (void) memcpy ( & job->context.allocationCallbacks, pAllocationCallbacks, sizeof ( MeshLoader_AllocationCallbacks ) );
-
     return MeshLoader_Result_Success;
 }
 

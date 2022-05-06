@@ -2,8 +2,8 @@
 // Created by loghin on 5/6/22.
 //
 
-#include "jobPriorityQueue.h"
 #include <stdalign.h>
+#include "jobPriorityQueue.h"
 
 extern MeshLoader_Result __MeshLoader_JobPriorityQueue_construct (
         __MeshLoader_JobPriorityQueue                 * pQueue,
@@ -96,16 +96,46 @@ extern void __MeshLoader_JobPriorityQueue_destruct (
     );
 }
 
+static inline MeshLoader_bool __MeshLoader_JobPriorityQueue_emptyInternal (
+        __MeshLoader_JobPriorityQueue const * pQueue
+) {
+    return pQueue->length == 0U;
+}
+
+static inline MeshLoader_bool __MeshLoader_JobPriorityQueue_fullInternal (
+        __MeshLoader_JobPriorityQueue const * pQueue
+) {
+    return pQueue->length == pQueue->capacity;
+}
+
 MeshLoader_Result __MeshLoader_JobPriorityQueue_peek (
         __MeshLoader_JobPriorityQueue           const * pQueue,
         __MeshLoader_JobPriorityQueue_Entry    const ** ppEntry
 ) {
 
-    if ( __MeshLoader_JobPriorityQueue_empty ( pQueue ) ) {
+    MeshLoader_Result   result;
+
+    result = __MeshLoader_Mutex_lock (
+            pQueue->lock
+    );
+
+    if ( result != MeshLoader_Result_Success ) {
+        return result;
+    }
+
+    if ( __MeshLoader_JobPriorityQueue_emptyInternal ( pQueue ) ) {
+        __MeshLoader_Mutex_unlock (
+                pQueue->lock
+        );
+
         return MeshLoader_Result_PriorityQueueEmpty;
     }
 
     * ppEntry = & pQueue->pEntries[0];
+    __MeshLoader_Mutex_unlock (
+            pQueue->lock
+    );
+
     return MeshLoader_Result_Success;
 }
 
@@ -123,6 +153,24 @@ MeshLoader_Result __MeshLoader_JobPriorityQueue_push (
         __MeshLoader_Job_RuntimeContext * pRuntimeContext,
         float                             priority
 ) {
+
+    MeshLoader_Result result;
+
+    result = __MeshLoader_Mutex_lock (
+            pQueue->lock
+    );
+
+    if ( result != MeshLoader_Result_Success ) {
+        return result;
+    }
+
+    if ( __MeshLoader_JobPriorityQueue_fullInternal ( pQueue ) ) {
+        __MeshLoader_Mutex_unlock (
+                pQueue->lock
+        );
+
+        return MeshLoader_Result_PriorityQueueFull;
+    }
 
     MeshLoader_uint32 lastIndex     = pQueue->length;
     MeshLoader_uint32 parentIndex   = ( lastIndex - 1U ) / 2U;
@@ -145,6 +193,10 @@ MeshLoader_Result __MeshLoader_JobPriorityQueue_push (
         parentIndex = ( lastIndex - 1 ) / 2;
     }
 
+    __MeshLoader_Mutex_unlock (
+            pQueue->lock
+    );
+
     return MeshLoader_Result_Success;
 }
 
@@ -153,7 +205,21 @@ MeshLoader_Result __MeshLoader_JobPriorityQueue_pop (
         __MeshLoader_Job_RuntimeContext    ** ppRuntimeContext
 ) {
 
-    if ( __MeshLoader_JobPriorityQueue_empty ( pQueue ) ) {
+    MeshLoader_Result result;
+
+    result = __MeshLoader_Mutex_lock (
+            pQueue->lock
+    );
+
+    if ( result != MeshLoader_Result_Success ) {
+        return result;
+    }
+
+    if ( __MeshLoader_JobPriorityQueue_emptyInternal ( pQueue ) ) {
+        __MeshLoader_Mutex_unlock (
+                pQueue->lock
+        );
+
         return MeshLoader_Result_PriorityQueueEmpty;
     }
 
@@ -161,6 +227,10 @@ MeshLoader_Result __MeshLoader_JobPriorityQueue_pop (
 
     if ( pQueue->length == 1U ) {
         -- pQueue->length;
+        __MeshLoader_Mutex_unlock (
+                pQueue->lock
+        );
+
         return MeshLoader_Result_Success;
     }
 
@@ -200,4 +270,10 @@ MeshLoader_Result __MeshLoader_JobPriorityQueue_pop (
             rootIndex = smallestIndex;
         }
     }
+
+    __MeshLoader_Mutex_unlock (
+            pQueue->lock
+    );
+
+    return MeshLoader_Result_Success;
 }

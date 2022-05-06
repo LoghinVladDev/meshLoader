@@ -6,7 +6,7 @@
 #define __MESH_LOADER_INSTANCE_H__
 
 #include "mutex.h"
-#include "jobPriorityQueue.h"
+#include "jobDispatcher.h"
 
 typedef struct __MeshLoader_Instance_JobNode {
     struct __MeshLoader_Instance_JobNode  * pNextJobNode;
@@ -20,6 +20,8 @@ struct __MeshLoader_Instance {
     MeshLoader_uint32               maxThreadCount;
     __MeshLoader_Mutex              instanceLock;
     __MeshLoader_Instance_JobList   jobList;
+
+    __MeshLoader_JobDispatcher      dispatcher;
 
 #if MESH_LOADER_DEBUG_MODE
 

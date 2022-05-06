@@ -8,10 +8,9 @@
 #include <meshLoader/publicTypes>
 #include "thread.h"
 #include "mutex.h"
-#include "jobDispatch.h"
+#include "string.h"
 
 typedef struct {
-    MeshLoader_AllocationCallbacks  allocationCallbacks;
     MeshLoader_MeshLoadModeFlags    loadMode;
     __MeshLoader_String             inputPath;
 } __MeshLoader_Job_RuntimeContext;

@@ -87,6 +87,7 @@ typedef enum {
     MeshLoader_Result_OutOfMemory                   = 0x00000005U,
     MeshLoader_Result_MutexError                    = 0x00000006U,
     MeshLoader_Result_PriorityQueueEmpty            = 0x00000007U,
+    MeshLoader_Result_PriorityQueueFull             = 0x00000008U,
 } MeshLoader_Result;
 
 typedef enum {
@@ -211,6 +212,7 @@ typedef struct {
     MeshLoader_JobsStartFlags           flags;
     MeshLoader_uint32                   jobCount;
     MeshLoader_Job              const * pJobs;
+    MeshLoader_AllocationCallbacks      pAllocationCallbacks;
 } MeshLoader_JobsStartInfo;
 
 typedef struct {

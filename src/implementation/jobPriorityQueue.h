@@ -50,10 +50,28 @@ extern MeshLoader_Result __MeshLoader_JobPriorityQueue_peek (
         __MeshLoader_JobPriorityQueue_Entry    const **
 );
 
-static inline MeshLoader_bool __MeshLoader_JobPriorityQueue_empty (
-        __MeshLoader_JobPriorityQueue           const * pQueue
+static inline MeshLoader_Result __MeshLoader_JobPriorityQueue_empty (
+        __MeshLoader_JobPriorityQueue           const * pQueue,
+        MeshLoader_bool                               * pEmpty
 ) {
-    return pQueue->length == 0U;
+
+    MeshLoader_Result result;
+
+    result = __MeshLoader_Mutex_lock (
+            pQueue->lock
+    );
+
+    if ( result != MeshLoader_Result_Success ) {
+        return result;
+    }
+
+    * pEmpty = pQueue->length == 0U;
+
+    __MeshLoader_Mutex_unlock (
+            pQueue->lock
+    );
+
+    return MeshLoader_Result_Success;
 }
 
 #endif // __MESH_LOADER_JOB_PRIORITY_QUEUE_H__
