@@ -44,6 +44,8 @@ set (
         src/implementation/job.h
         src/implementation/jobDispatcher.c
         src/implementation/jobDispatcher.h
+        src/implementation/jobWorker.c
+        src/implementation/jobWorker.h
         src/implementation/jobPriorityQueue.c
         src/implementation/jobPriorityQueue.h
         src/implementation/string.c

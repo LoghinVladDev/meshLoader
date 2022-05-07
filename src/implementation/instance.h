@@ -7,6 +7,7 @@
 
 #include "mutex.h"
 #include "jobDispatcher.h"
+#include "jobWorker.h"
 
 typedef struct __MeshLoader_Instance_JobNode {
     struct __MeshLoader_Instance_JobNode  * pNextJobNode;
@@ -17,11 +18,11 @@ typedef struct __MeshLoader_Instance_JobNode {
 typedef __MeshLoader_Instance_JobNode * __MeshLoader_Instance_JobList;
 
 struct __MeshLoader_Instance {
-    MeshLoader_uint32               maxThreadCount;
     __MeshLoader_Mutex              instanceLock;
     __MeshLoader_Instance_JobList   jobList;
 
     __MeshLoader_JobDispatcher      dispatcher;
+    __MeshLoader_JobWorker_Manager  workerManager;
 
 #if MESH_LOADER_DEBUG_MODE
 

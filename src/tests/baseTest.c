@@ -36,7 +36,7 @@ int main() {
                     .pNext          = NULL,
                     .loadMode       = MeshLoader_MeshLoadModeFlag_LoadFaces | MeshLoader_MeshLoadModeFlag_LoadIndices,
                     .inputPath      = "../tests/data/baseTest/teapot.obj",
-                    .priority       = .5f
+                    .priority       = .7f
             }, {
                     .structureType  = MeshLoader_StructureType_CreateJobInfo,
                     .pNext          = NULL,
