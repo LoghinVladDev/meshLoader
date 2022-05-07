@@ -8,6 +8,33 @@
 #include <meshLoader/publicTypes>
 #include "../internalAllocation.h"
 
-#define __MeshLoader_Thread_InactiveThread 0x0000000000000000U
+extern MeshLoader_Result __MeshLoader_Thread_create (
+        struct __MeshLoader_Posix_Thread             **,
+        __MeshLoader_Thread_Function,
+        __MeshLoader_Thread_Parameters          const *,
+        __MeshLoader_ScopedAllocationCallbacks  const *
+);
+
+extern void __MeshLoader_Thread_join (
+        struct __MeshLoader_Posix_Thread *
+);
+
+extern void __MeshLoader_Thread_kill (
+        struct __MeshLoader_Posix_Thread *
+);
+
+extern void __MeshLoader_Thread_start (
+        struct __MeshLoader_Posix_Thread *
+);
+
+extern void __MeshLoader_Thread_destroy (
+        struct __MeshLoader_Posix_Thread              *,
+        __MeshLoader_ScopedAllocationCallbacks  const *
+);
+
+extern void __MeshLoader_Thread_isRunning (
+        struct __MeshLoader_Posix_Thread    *,
+        MeshLoader_bool                     *
+);
 
 #endif // __MESH_LOADER_POSIX_THREAD_H__

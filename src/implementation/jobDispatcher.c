@@ -5,7 +5,7 @@
 #include <stdalign.h>
 #include "jobDispatcher.h"
 #include "instance.h"
-#include "job.h"
+#include "jobWorker.h"
 #include <memory.h>
 
 MeshLoader_Result __MeshLoader_JobDispatcher_construct (
@@ -213,6 +213,15 @@ MeshLoader_Result MeshLoader_startJobs (
     result = __MeshLoader_JobDispatcher_createContext (
             & instance->dispatcher,
             pStartInfo
+    );
+
+    if ( result != MeshLoader_Result_Success ) {
+        return result;
+    }
+
+    result = __MeshLoader_JobWorker_newJobsAddedNotification (
+            & instance->workerManager,
+            pStartInfo->jobCount
     );
 
     if ( result != MeshLoader_Result_Success ) {

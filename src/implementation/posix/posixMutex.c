@@ -52,7 +52,7 @@ MeshLoader_Result __MeshLoader_Mutex_create (
             .size                   = sizeof ( struct __MeshLoader_Posix_Mutex ),
             .alignment              = alignof ( struct __MeshLoader_Posix_Mutex ),
             .allocationScope        = pAllocationCallbacks->allocationScope,
-            .explicitMemoryPurpose  = "Creates a Mutex type Object ( posix )"
+            .explicitMemoryPurpose  = "Creates a Mutex Object ( posix )"
     };
 
     allocationNotification.pMemory = pAllocationCallbacks->pAllocationCallbacks->allocationFunction (
@@ -80,7 +80,7 @@ MeshLoader_Result __MeshLoader_Mutex_create (
 
     if ( mutexRetVal != 0 ) {
         if ( pAllocationCallbacks->pAllocationCallbacks->internalFreeNotificationFunction != NULL ) {
-            allocationNotification.explicitMemoryPurpose = "Deletes a Mutex type Object ( pthread_mutex_init failure )";
+            allocationNotification.explicitMemoryPurpose = "Deletes a Mutex Object ( pthread_mutex_init failure )";
             pAllocationCallbacks->pAllocationCallbacks->internalFreeNotificationFunction (
                     pAllocationCallbacks->pAllocationCallbacks->pUserData,
                     & allocationNotification
@@ -111,7 +111,7 @@ void __MeshLoader_Mutex_destroy (
             .size                   = sizeof ( struct __MeshLoader_Posix_Mutex ),
             .alignment              = alignof ( struct __MeshLoader_Posix_Mutex ),
             .allocationScope        = pAllocationCallbacks->allocationScope,
-            .explicitMemoryPurpose  = "Destroys a Mutex type Object at end of life ( posix )"
+            .explicitMemoryPurpose  = "Destroys a Mutex Object ( posix )"
     };
 
     pthread_mutex_destroy ( & pMutex->mutex );
