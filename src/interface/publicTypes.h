@@ -68,6 +68,9 @@ typedef enum {
     MeshLoader_StructureType_JobResult              = 0x00000012U,
 
     MeshLoader_StructureType_AllocationNotification = 0x00000013U,
+
+    MeshLoader_StructureType_JobData                = 0x00001000U,
+    MeshLoader_StructureType_CustomJobInfo          = 0x00001001U,
 } MeshLoader_StructureType;
 
 typedef enum {
@@ -274,6 +277,25 @@ typedef struct {
     MeshLoader_uint32                   jobCount;
     MeshLoader_JobResult              * pGetJobResults;
 } MeshLoader_JobsGetResultInfo;
+
+typedef struct {
+    MeshLoader_StructureType            structureType;
+    void                        const * pNext;
+    void                              * pUserData;
+    MeshLoader_MeshLoadModeFlags        loadMode;
+    MeshLoader_StringLiteral            inputPath;
+} MeshLoader_JobData;
+
+typedef MeshLoader_Result ( * MeshLoader_JobMainFunction ) (
+        MeshLoader_JobData const *
+);
+
+typedef struct {
+    MeshLoader_StructureType            structureType;
+    void                        const * pNext;
+    void                              * pUserData;
+    MeshLoader_JobMainFunction          jobFunction;
+} MeshLoader_CustomJobInfo;
 
 typedef MeshLoader_Result ( * MeshLoader_CreateInstanceFunction ) (
         MeshLoader_InstanceCreateInfo   const * pCreateInfo,

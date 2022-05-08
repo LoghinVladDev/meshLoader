@@ -157,6 +157,7 @@ MeshLoader_Result __MeshLoader_JobWorker_Manager_construct (
         pManager->pWorkers [ threadIndex ].state                            = __MeshLoader_JobWorker_State_NotStarted;
         pManager->pWorkers [ threadIndex ].keepAlive                        = MeshLoader_false;
         pManager->pWorkers [ threadIndex ].errorReason                      = NULL;
+        pManager->pWorkers [ threadIndex ].pCustomJobInfo                   = __MeshLoader_JobWorker_getJobInfo ( NULL );
     }
 
     return MeshLoader_Result_Success;
@@ -298,8 +299,16 @@ static void __MeshLoader_JobWorker_main (
 ) {
 
     MeshLoader_Result result;
-    __MeshLoader_JobWorker * pThis      = ( __MeshLoader_JobWorker * ) pParameters->pParameters[0U].pData;
-    MeshLoader_Instance      instance   = ( MeshLoader_Instance ) pParameters->pParameters[1U].pData;
+    __MeshLoader_JobWorker * pThis          = ( __MeshLoader_JobWorker * ) pParameters->pParameters[0U].pData;
+    MeshLoader_Instance      instance       = ( MeshLoader_Instance ) pParameters->pParameters[1U].pData;
+
+    MeshLoader_JobData       jobData        = {
+            .structureType                          = MeshLoader_StructureType_JobData,
+            .pNext                                  = NULL,
+            .pUserData                              = pThis->pCustomJobInfo->pUserData,
+            .inputPath                              = NULL,
+            .loadMode                               = MeshLoader_nullFlags
+    };
 
     pThis->state = __MeshLoader_JobWorker_State_Initializing;
 
@@ -323,7 +332,18 @@ static void __MeshLoader_JobWorker_main (
             return;
         }
 
-        /* use context & execute job step */
+        jobData.loadMode    = pThis->pRuntimeContext->loadMode;
+        jobData.inputPath   = pThis->pRuntimeContext->inputPath.string;
+
+        result = pThis->pCustomJobInfo->jobFunction (
+                & jobData
+        );
+
+        if ( result != MeshLoader_Result_Success ) {
+            pThis->state        = __MeshLoader_JobWorker_State_Error;
+            pThis->errorReason  = "Custom Job Error";
+            break;
+        }
 
         pThis->state = __MeshLoader_JobWorker_State_ReleasingJobContext;
 
@@ -350,4 +370,12 @@ static void __MeshLoader_JobWorker_main (
     }
 
     pThis->state = __MeshLoader_JobWorker_State_Cleanup;
+}
+
+MeshLoader_Result __MeshLoader_JobWorker_defaultJobMainFunction (
+        MeshLoader_JobData const * pContext
+) {
+    (void) pContext;
+
+    return MeshLoader_Result_Success;
 }
