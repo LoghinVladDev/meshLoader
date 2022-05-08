@@ -19,8 +19,6 @@ typedef struct {
     __MeshLoader_JobPriorityQueue_Entry   * pEntries;
     MeshLoader_uint32                       length;
     MeshLoader_uint32                       capacity;
-
-    __MeshLoader_Mutex                      lock;
 } __MeshLoader_JobPriorityQueue;
 
 extern MeshLoader_Result __MeshLoader_JobPriorityQueue_construct (
@@ -50,28 +48,16 @@ extern MeshLoader_Result __MeshLoader_JobPriorityQueue_peek (
         __MeshLoader_JobPriorityQueue_Entry    const **
 );
 
-static inline MeshLoader_Result __MeshLoader_JobPriorityQueue_empty (
-        __MeshLoader_JobPriorityQueue           const * pQueue,
-        MeshLoader_bool                               * pEmpty
+static inline MeshLoader_bool __MeshLoader_JobPriorityQueue_empty (
+        __MeshLoader_JobPriorityQueue const * pQueue
 ) {
+    return pQueue->length == 0U;
+}
 
-    MeshLoader_Result result;
-
-    result = __MeshLoader_Mutex_lock (
-            pQueue->lock
-    );
-
-    if ( result != MeshLoader_Result_Success ) {
-        return result;
-    }
-
-    * pEmpty = pQueue->length == 0U;
-
-    __MeshLoader_Mutex_unlock (
-            pQueue->lock
-    );
-
-    return MeshLoader_Result_Success;
+static inline MeshLoader_bool __MeshLoader_JobPriorityQueue_full (
+        __MeshLoader_JobPriorityQueue const * pQueue
+) {
+    return pQueue->length == pQueue->capacity;
 }
 
 #endif // __MESH_LOADER_JOB_PRIORITY_QUEUE_H__

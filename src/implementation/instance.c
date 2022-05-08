@@ -144,6 +144,7 @@ static MeshLoader_Result  __MeshLoader_Instance_construct (
     }
 
     result = __MeshLoader_JobWorker_Manager_construct (
+            pInstance,
             & pInstance->workerManager,
             pCreateInfo->maxWorkerThreadCount,
             pAllocationCallbacks

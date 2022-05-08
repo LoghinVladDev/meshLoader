@@ -98,6 +98,8 @@ MeshLoader_Result __MeshLoader_Thread_create (
             return MeshLoader_Result_OutOfMemory;
         }
 
+        ( * pThread )->parameters.pParameters = ( __MeshLoader_Thread_Parameter * ) allocationNotification.pMemory;
+
         if ( pAllocationCallbacks->pAllocationCallbacks->internalAllocationNotificationFunction != NULL ) {
             pAllocationCallbacks->pAllocationCallbacks->internalAllocationNotificationFunction (
                     pAllocationCallbacks->pAllocationCallbacks->pUserData,
@@ -190,8 +192,8 @@ void __MeshLoader_Thread_start (
         struct __MeshLoader_Posix_Thread * pThread
 ) {
 
-    pthread_create ( & pThread->thread, NULL, & __MeshLoader_Thread_privateStart, (void *) pThread );
     pThread->running = MeshLoader_true;
+    pthread_create ( & pThread->thread, NULL, & __MeshLoader_Thread_privateStart, (void *) pThread );
 }
 
 void __MeshLoader_Thread_isRunning (

@@ -12,9 +12,25 @@ MeshLoader_Result __MeshLoader_JobDispatcher_construct (
         __MeshLoader_JobDispatcher            * pDispatcher,
         MeshLoader_AllocationCallbacks  const * pAllocationCallbacks
 ) {
-    (void) pAllocationCallbacks;
+
+    MeshLoader_Result result;
+
+    __MeshLoader_ScopedAllocationCallbacks scopedAllocationCallbacks = {
+            .pAllocationCallbacks       = pAllocationCallbacks,
+            .allocationScope            = MeshLoader_SystemAllocationScope_Object,
+            .explicitAllocationPurpose  = NULL
+    };
 
     pDispatcher->contextList = NULL;
+
+    result = __MeshLoader_Mutex_create (
+            & pDispatcher->lock,
+            & scopedAllocationCallbacks
+    );
+
+    if ( result != MeshLoader_Result_Success ) {
+        return result;
+    }
 
     return MeshLoader_Result_Success;
 }
@@ -23,13 +39,23 @@ void __MeshLoader_JobDispatcher_destruct (
         __MeshLoader_JobDispatcher            * pDispatcher,
         MeshLoader_AllocationCallbacks  const * pAllocationCallbacks
 ) {
-    (void) pAllocationCallbacks;
+
+    __MeshLoader_ScopedAllocationCallbacks scopedAllocationCallbacks = {
+            .pAllocationCallbacks           = pAllocationCallbacks,
+            .allocationScope                = MeshLoader_SystemAllocationScope_Object,
+            .explicitAllocationPurpose      = NULL
+    };
 
     while ( pDispatcher->contextList != NULL ) {
         __MeshLoader_JobDispatcher_ContextNode * pToDelete  = pDispatcher->contextList;
         pDispatcher->contextList                            = pDispatcher->contextList->pNext;
         __MeshLoader_JobDispatcher_freeContext ( pToDelete );
     }
+
+    __MeshLoader_Mutex_destroy (
+            pDispatcher->lock,
+            & scopedAllocationCallbacks
+    );
 }
 
 static void __MeshLoader_JobDispatcher_freeContext (
@@ -219,7 +245,7 @@ MeshLoader_Result MeshLoader_startJobs (
         return result;
     }
 
-    result = __MeshLoader_JobWorker_newJobsAddedNotification (
+    result = __MeshLoader_JobWorker_Manager_newJobsAddedNotification (
             & instance->workerManager,
             pStartInfo->jobCount
     );
@@ -256,8 +282,130 @@ MeshLoader_Result MeshLoader_anyJobsRunning (
         MeshLoader_bool                       * pAnyRunning
 ) {
 
-    (void) instance;
-    (void) pAnyRunning;
+    return __MeshLoader_JobWorker_Manager_anyWorkersRunning (
+            & instance->workerManager,
+            pAnyRunning
+    );
+}
+
+MeshLoader_Result __MeshLoader_JobDispatcher_acquireJob (
+        __MeshLoader_JobDispatcher              * pDispatcher,
+        __MeshLoader_JobDispatcher_ContextNode ** ppContextNode,
+        __MeshLoader_Job_RuntimeContext        ** ppRuntimeContext,
+        float                                   * pContextPriority
+) {
+
+    MeshLoader_Result                           result;
+    __MeshLoader_JobPriorityQueue_Entry const * pEntry;
+
+    __MeshLoader_JobDispatcher_ContextNode    * pHighestPriorityContext         = NULL;
+
+    * ppRuntimeContext = NULL;
+
+    result = __MeshLoader_Mutex_lock (
+            pDispatcher->lock
+    );
+
+    if ( result != MeshLoader_Result_Success ) {
+        return result;
+    }
+
+    * ppContextNode     = pDispatcher->contextList;
+
+    while ( ( * ppContextNode ) != NULL ) {
+
+        if ( __MeshLoader_JobPriorityQueue_empty ( & ( * ppContextNode )->context.jobQueue ) ) {
+            ( * ppContextNode ) = ( * ppContextNode )->pNext;
+            continue;
+        }
+
+        result = __MeshLoader_JobPriorityQueue_peek (
+                & ( * ppContextNode )->context.jobQueue,
+                & pEntry
+        );
+
+        if ( result != MeshLoader_Result_Success ) {
+            __MeshLoader_Mutex_unlock (
+                    pDispatcher->lock
+            );
+
+            return result;
+        }
+
+        if ( pHighestPriorityContext == NULL || * pContextPriority < pEntry->priority ) {
+            pHighestPriorityContext = * ppContextNode;
+            * pContextPriority      = pEntry->priority;
+        }
+
+        ( * ppContextNode ) = ( * ppContextNode )->pNext;
+    }
+
+    if ( pHighestPriorityContext == NULL ) {
+        __MeshLoader_Mutex_unlock (
+                pDispatcher->lock
+        );
+
+        return MeshLoader_Result_Success;
+    }
+
+    result = __MeshLoader_JobPriorityQueue_pop (
+            & pHighestPriorityContext->context.jobQueue,
+            ppRuntimeContext
+    );
+
+    if ( result != MeshLoader_Result_Success ) {
+        * ppRuntimeContext = NULL;
+
+        __MeshLoader_Mutex_unlock (
+                pDispatcher->lock
+        );
+
+        return result;
+    }
+
+    * ppContextNode     = pHighestPriorityContext;
+
+    __MeshLoader_Mutex_unlock (
+            pDispatcher->lock
+    );
+
+    return MeshLoader_Result_Success;
+}
+
+MeshLoader_Result __MeshLoader_JobDispatcher_releaseJob (
+        __MeshLoader_JobDispatcher              * pDispatcher,
+        __MeshLoader_JobDispatcher_ContextNode  * pContextNode,
+        __MeshLoader_Job_RuntimeContext         * pRuntimeContext,
+        float                                     contextPriority
+) {
+
+    MeshLoader_Result result;
+
+    result = __MeshLoader_Mutex_lock (
+            pDispatcher->lock
+    );
+
+    if ( result != MeshLoader_Result_Success ) {
+        return result;
+    }
+
+    result = __MeshLoader_JobPriorityQueue_push (
+            & pContextNode->context.jobQueue,
+            pRuntimeContext,
+            contextPriority
+    );
+
+    if ( result != MeshLoader_Result_Success ) {
+        __MeshLoader_Mutex_unlock (
+                pDispatcher->lock
+        );
+
+        return result;
+    }
+
+    __MeshLoader_Mutex_unlock (
+            pDispatcher->lock
+    );
 
     return MeshLoader_Result_Success;
 }

@@ -7,6 +7,7 @@
 
 #include <meshLoader/publicTypes>
 #include "jobPriorityQueue.h"
+#include "mutex.h"
 
 typedef struct {
     MeshLoader_AllocationCallbacks  allocationCallbacks;
@@ -24,7 +25,8 @@ typedef struct __MeshLoader_JobDispatcher_ContextNode {
 typedef __MeshLoader_JobDispatcher_ContextNode * __MeshLoader_JobDispatcher_ContextList;
 
 typedef struct {
-    __MeshLoader_JobDispatcher_ContextList contextList;
+    __MeshLoader_JobDispatcher_ContextList  contextList;
+    __MeshLoader_Mutex                      lock;
 } __MeshLoader_JobDispatcher;
 
 extern MeshLoader_Result __MeshLoader_JobDispatcher_construct (
@@ -49,6 +51,20 @@ static MeshLoader_Result __MeshLoader_JobDispatcher_allocateContext (
 
 static void __MeshLoader_JobDispatcher_freeContext (
         __MeshLoader_JobDispatcher_ContextNode *
+);
+
+extern MeshLoader_Result __MeshLoader_JobDispatcher_acquireJob (
+        __MeshLoader_JobDispatcher              *,
+        __MeshLoader_JobDispatcher_ContextNode **,
+        __MeshLoader_Job_RuntimeContext        **,
+        float                                   *
+);
+
+extern MeshLoader_Result __MeshLoader_JobDispatcher_releaseJob (
+        __MeshLoader_JobDispatcher              *,
+        __MeshLoader_JobDispatcher_ContextNode  *,
+        __MeshLoader_Job_RuntimeContext         *,
+        float
 );
 
 #endif // __MESH_LOADER_JOB_DISPATCHER_H__
