@@ -58,6 +58,9 @@ set (
         src/implementation/job.c
         src/implementation/job.h
 
+        src/implementation/jobMemoryAllocator.c
+        src/implementation/jobMemoryAllocator.h
+
         src/implementation/jobDispatcher.c
         src/implementation/jobDispatcher.h
 

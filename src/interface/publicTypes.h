@@ -226,12 +226,12 @@ typedef struct {
 } MeshLoader_JobsCreateInfo;
 
 typedef struct {
-    MeshLoader_StructureType            structureType;
-    void                        const * pNext;
-    MeshLoader_JobsStartFlags           flags;
-    MeshLoader_uint32                   jobCount;
-    MeshLoader_Job              const * pJobs;
-    MeshLoader_AllocationCallbacks      pAllocationCallbacks;
+    MeshLoader_StructureType                structureType;
+    void                            const * pNext;
+    MeshLoader_JobsStartFlags               flags;
+    MeshLoader_uint32                       jobCount;
+    MeshLoader_Job                  const * pJobs;
+    MeshLoader_AllocationCallbacks  const * pAllocationCallbacks;
 } MeshLoader_JobsStartInfo;
 
 typedef struct {

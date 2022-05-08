@@ -16,10 +16,23 @@ MeshLoader_CustomJobInfo const * __MeshLoader_JobWorker_getDefaultObjWorkerInfo 
 }
 
 MeshLoader_Result __MeshLoader_JobWorker_objWorkerMainFunction (
-        MeshLoader_Job_Context context
+        MeshLoader_Job_Context                  context
 ) {
 
     MeshLoader_Result result;
+
+    char * p;
+
+    (void) MeshLoader_Job_allocateMemory (
+            context,
+            1,
+            (void **) & p
+    );
+
+    (void) MeshLoader_Job_freeMemory (
+            context,
+            (void *) p
+    );
 
     float progress;
 

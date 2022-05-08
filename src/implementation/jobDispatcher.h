@@ -8,6 +8,7 @@
 #include <meshLoader/publicTypes>
 #include "jobPriorityQueue.h"
 #include "mutex.h"
+#include "jobMemoryAllocator.h"
 
 typedef struct {
     MeshLoader_AllocationCallbacks  allocationCallbacks;

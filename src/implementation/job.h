@@ -12,6 +12,7 @@
 #include "string.h"
 #include <stdatomic.h>
 #include "../config/instanceCnf.h"
+#include "jobMemoryAllocator.h"
 
 typedef struct {
     MeshLoader_MeshLoadModeFlags        loadMode;
@@ -19,16 +20,18 @@ typedef struct {
     atomic_uint_fast32_t                jobProgress;
     atomic_uint_fast8_t                 jobStatus;
     MeshLoader_CustomJobInfo    const * pCustomJobInfo;
+    __MeshLoader_JobMemoryAllocator     jobMemoryAllocator;
 } __MeshLoader_Job_RuntimeContext;
 
 struct __MeshLoader_Job_Context {
-    MeshLoader_StructureType            structureType;
-    void                        const * pNext;
-    void                              * pUserData;
-    MeshLoader_MeshLoadModeFlags        loadMode;
-    MeshLoader_StringLiteral            inputPath;
-    float                               progress;
-    MeshLoader_JobStatus                status;
+    MeshLoader_StructureType                    structureType;
+    void                                const * pNext;
+    void                                      * pUserData;
+    MeshLoader_MeshLoadModeFlags                loadMode;
+    MeshLoader_StringLiteral                    inputPath;
+    float                                       progress;
+    MeshLoader_JobStatus                        status;
+    __MeshLoader_JobMemoryAllocator           * pMemoryAllocator;
 };
 
 struct __MeshLoader_Job {

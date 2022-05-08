@@ -397,7 +397,7 @@ static void __MeshLoader_JobWorker_main (
 
 static inline MeshLoader_Result __MeshLoader_JobWorker_loadJobData (
         MeshLoader_Job_Context                  jobData,
-        __MeshLoader_Job_RuntimeContext const * pRuntimeContext
+        __MeshLoader_Job_RuntimeContext       * pRuntimeContext
 ) {
 
     MeshLoader_Result result;
@@ -420,8 +420,9 @@ static inline MeshLoader_Result __MeshLoader_JobWorker_loadJobData (
         return result;
     }
 
-    jobData->loadMode  = pRuntimeContext->loadMode;
-    jobData->inputPath = pRuntimeContext->inputPath.string;
+    jobData->loadMode           = pRuntimeContext->loadMode;
+    jobData->inputPath          = pRuntimeContext->inputPath.string;
+    jobData->pMemoryAllocator   = & pRuntimeContext->jobMemoryAllocator;
 
     return MeshLoader_Result_Success;
 }

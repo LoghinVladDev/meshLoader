@@ -190,7 +190,11 @@ static void __MeshLoader_InternalAllocation_reallocationNotify (
 ) {
     (void) pUserData;
 
-    __MeshLoader_InternalAllocation_trackReallocation ( pNotification );
+    if ( pNotification->pOldMemory == NULL ) {
+        __MeshLoader_InternalAllocation_trackAllocation ( pNotification );
+    } else {
+        __MeshLoader_InternalAllocation_trackReallocation ( pNotification );
+    }
 
     fprintf (
             stdout,

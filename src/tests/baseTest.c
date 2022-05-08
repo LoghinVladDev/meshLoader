@@ -71,11 +71,12 @@ int main() {
     }
 
     MeshLoader_JobsStartInfo startInfo = {
-            .structureType  = MeshLoader_StructureType_JobsStartInfo,
-            .pNext          = NULL,
-            .flags          = MeshLoader_nullFlags,
-            .jobCount       = jobCount,
-            .pJobs          = & jobs[0]
+            .structureType          = MeshLoader_StructureType_JobsStartInfo,
+            .pNext                  = NULL,
+            .flags                  = MeshLoader_nullFlags,
+            .jobCount               = jobCount,
+            .pJobs                  = & jobs[0],
+            .pAllocationCallbacks   = NULL
     };
 
     MeshLoader_QueryJobInfo queryInfos [jobCount];
@@ -119,9 +120,9 @@ int main() {
 
             fprintf (
                     stdout,
-                    "Job %d progress : %.2f\n",
+                    "Job %d progress : %.2f%%\n",
                     i,
-                    queryInfos[i].progress
+                    queryInfos[i].progress * 100.0f
             );
 
             fflush(stdout);

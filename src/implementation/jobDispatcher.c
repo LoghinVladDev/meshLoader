@@ -81,6 +81,20 @@ static void __MeshLoader_JobDispatcher_freeContext (
             .explicitAllocationPurpose  = NULL
     };
 
+    __MeshLoader_Job_RuntimeContext * pJobRuntimeContext;
+
+    while ( ! __MeshLoader_JobPriorityQueue_empty ( & pNode->context.jobQueue ) ) {
+        (void) __MeshLoader_JobPriorityQueue_pop (
+                & pNode->context.jobQueue,
+                & pJobRuntimeContext
+        );
+
+        __MeshLoader_JobMemoryAllocator_destruct (
+                & pJobRuntimeContext->jobMemoryAllocator,
+                & pNode->context.allocationCallbacks
+        );
+    }
+
     __MeshLoader_JobPriorityQueue_destruct (
             & pNode->context.jobQueue,
             & scopedAllocationCallbacks
@@ -181,6 +195,34 @@ static MeshLoader_Result __MeshLoader_JobDispatcher_allocateContext (
                 & ( * ppNode )->context.jobQueue,
                 & pStartInfo->pJobs [ jobIndex ]->context,
                 pStartInfo->pJobs [ jobIndex ]->priority
+        );
+
+        if ( result != MeshLoader_Result_Success ) {
+
+            __MeshLoader_JobPriorityQueue_destruct (
+                    & ( * ppNode )->context.jobQueue,
+                    & scopedAllocationCallbacks
+            );
+
+            if ( pAllocationCallbacks->internalFreeNotificationFunction != NULL ) {
+                pAllocationCallbacks->internalFreeNotificationFunction (
+                        pAllocationCallbacks->pUserData,
+                        & allocationNotification
+                );
+            }
+
+            pAllocationCallbacks->freeFunction (
+                    pAllocationCallbacks->pUserData,
+                    allocationNotification.pMemory
+            );
+
+            return result;
+        }
+
+        result = __MeshLoader_JobMemoryAllocator_construct (
+                & pStartInfo->pJobs[jobIndex]->context.jobMemoryAllocator,
+                pAllocationCallbacks,
+                pAllocationCallbacks
         );
 
         if ( result != MeshLoader_Result_Success ) {
@@ -412,6 +454,11 @@ MeshLoader_Result __MeshLoader_JobDispatcher_releaseJob (
             pRuntimeContext->jobStatus == ( MeshLoader_uint8 ) MeshLoader_JobStatus_FinishedError
     ) {
         pContextNode->context.finishedJobCount ++;
+
+        __MeshLoader_JobMemoryAllocator_destruct (
+                & pRuntimeContext->jobMemoryAllocator,
+                & pContextNode->context.allocationCallbacks
+        );
 
         if ( pContextNode->context.finishedJobCount == pContextNode->context.jobCount ) {
             __MeshLoader_JobDispatcher_removeContextNode (

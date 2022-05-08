@@ -66,7 +66,7 @@ extern MeshLoader_Result __MeshLoader_JobWorker_Manager_anyWorkersRunning (
 
 static inline MeshLoader_Result __MeshLoader_JobWorker_loadJobData (
         MeshLoader_Job_Context,
-        __MeshLoader_Job_RuntimeContext const *
+        __MeshLoader_Job_RuntimeContext       *
 );
 
 static inline MeshLoader_Result __MeshLoader_JobWorker_storeJobData (
