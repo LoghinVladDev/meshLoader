@@ -6,6 +6,27 @@
 #include "instance.h"
 #include <stdalign.h>
 
+static MeshLoader_Result __MeshLoader_JobWorker_defaultJobMainFunction (
+        MeshLoader_JobData *
+);
+
+static MeshLoader_CustomJobInfo const __MeshLoader_JobWorker_defaultJobInfo = {
+        .structureType      = MeshLoader_StructureType_CustomJobInfo,
+        .pNext              = NULL,
+        .pUserData          = NULL,
+        .jobFunction        = & __MeshLoader_JobWorker_defaultJobMainFunction
+};
+
+static inline MeshLoader_CustomJobInfo const * __MeshLoader_JobWorker_getJobInfo (
+        MeshLoader_CustomJobInfo    const * pCustomJobInfo
+) {
+    if ( pCustomJobInfo == NULL ) {
+        return & __MeshLoader_JobWorker_defaultJobInfo;
+    }
+
+    return pCustomJobInfo;
+}
+
 MeshLoader_Result __MeshLoader_JobWorker_Manager_construct (
         MeshLoader_Instance                     instance,
         __MeshLoader_JobWorker_Manager        * pManager,

@@ -4,7 +4,6 @@
 
 #include "job.h"
 #include <memory.h>
-#include "../config/instanceCnf.h"
 
 MeshLoader_Result __MeshLoader_Job_construct (
         MeshLoader_Job                          job,

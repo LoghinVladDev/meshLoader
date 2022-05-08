@@ -29,7 +29,7 @@ typedef struct {
     __MeshLoader_JobWorker_State                state;
     atomic_bool                                 keepAlive;
     MeshLoader_StringLiteral                    errorReason;
-    MeshLoader_CustomJobInfo                  * pCustomJobInfo;
+    MeshLoader_CustomJobInfo            const * pCustomJobInfo;
 } __MeshLoader_JobWorker;
 
 typedef struct {
@@ -63,26 +63,5 @@ extern MeshLoader_Result __MeshLoader_JobWorker_Manager_anyWorkersRunning (
         __MeshLoader_JobWorker_Manager *,
         MeshLoader_bool                *
 );
-
-static MeshLoader_Result __MeshLoader_JobWorker_defaultJobMainFunction (
-        MeshLoader_JobData *
-);
-
-static MeshLoader_CustomJobInfo const __MeshLoader_JobWorker_defaultJobInfo = {
-        .structureType      = MeshLoader_StructureType_CustomJobInfo,
-        .pNext              = NULL,
-        .pUserData          = NULL,
-        .jobFunction        = & __MeshLoader_JobWorker_defaultJobMainFunction
-};
-
-static inline MeshLoader_CustomJobInfo const * __MeshLoader_JobWorker_getJobInfo (
-        MeshLoader_CustomJobInfo    const * pCustomJobInfo
-) {
-    if ( pCustomJobInfo == NULL ) {
-        return & __MeshLoader_JobWorker_defaultJobInfo;
-    }
-
-    return pCustomJobInfo;
-}
 
 #endif // __MESH_LOADER_JOB_WORKER_H__

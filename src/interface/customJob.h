@@ -22,7 +22,7 @@ extern MeshLoader_Result MeshLoader_Job_getProgress (
 );
 
 typedef MeshLoader_Result ( * MeshLoader_JobMainFunction ) (
-        MeshLoader_JobData const *
+        MeshLoader_JobData *
 );
 
 typedef struct {
