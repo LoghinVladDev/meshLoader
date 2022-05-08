@@ -21,6 +21,7 @@ typedef struct {
     atomic_uint_fast8_t                 jobStatus;
     MeshLoader_CustomJobInfo    const * pCustomJobInfo;
     __MeshLoader_JobMemoryAllocator     jobMemoryAllocator;
+    void                              * pNextCallData;
 } __MeshLoader_Job_RuntimeContext;
 
 struct __MeshLoader_Job_Context {
@@ -32,6 +33,7 @@ struct __MeshLoader_Job_Context {
     float                                       progress;
     MeshLoader_JobStatus                        status;
     __MeshLoader_JobMemoryAllocator           * pMemoryAllocator;
+    void                                      * pNextCallData;
 };
 
 struct __MeshLoader_Job {

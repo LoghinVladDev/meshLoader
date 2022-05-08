@@ -85,6 +85,7 @@ MeshLoader_Result __MeshLoader_Job_construct (
     job->context.loadMode       = pCreateInfo->loadMode;
     job->context.jobProgress    = MESH_LOADER_JOB_PROGRESS_MIN_VALUE;
     job->context.jobStatus      = ( MeshLoader_uint8 ) MeshLoader_JobStatus_Ready;
+    job->context.pNextCallData  = NULL;
     job->jobType                = pCreateInfo->jobType;
 
     if ( job->jobType != MeshLoader_JobType_Custom ) {
@@ -211,5 +212,50 @@ MeshLoader_Result MeshLoader_Job_finish (
 ) {
 
     jobContext->status = MeshLoader_JobStatus_Finished;
+    return MeshLoader_Result_Success;
+}
+
+MeshLoader_Result MeshLoader_Job_getUserData (
+        MeshLoader_Job_Context    jobContext,
+        void                   ** ppUserData
+) {
+
+    * ppUserData = jobContext->pUserData;
+    return MeshLoader_Result_Success;
+}
+
+MeshLoader_Result MeshLoader_Job_getDataFromPreviousCall (
+        MeshLoader_Job_Context    jobContext,
+        void                   ** ppData
+) {
+
+    * ppData = jobContext->pNextCallData;
+    return MeshLoader_Result_Success;
+}
+
+MeshLoader_Result MeshLoader_Job_setDataForNextCall (
+        MeshLoader_Job_Context    jobContext,
+        void                    * pData
+) {
+
+    jobContext->pNextCallData = pData;
+    return MeshLoader_Result_Success;
+}
+
+MeshLoader_Result MeshLoader_Job_getLoadMode (
+        MeshLoader_Job_Context          jobContext,
+        MeshLoader_MeshLoadModeFlags  * pLoadMode
+) {
+
+    * pLoadMode = jobContext->loadMode;
+    return MeshLoader_Result_Success;
+}
+
+MeshLoader_Result MeshLoader_Job_getInputPath (
+        MeshLoader_Job_Context        jobContext,
+        MeshLoader_StringLiteral    * pInputPath
+) {
+
+    * pInputPath = jobContext->inputPath;
     return MeshLoader_Result_Success;
 }

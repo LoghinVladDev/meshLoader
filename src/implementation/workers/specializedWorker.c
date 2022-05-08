@@ -11,7 +11,7 @@ MeshLoader_CustomJobInfo const * __MeshLoader_SpecializedWorker_getInfo (
 
     switch ( type ) {
         case MeshLoader_JobType_Obj:
-            return __MeshLoader_JobWorker_getDefaultObjWorkerInfo ();
+            return __MeshLoader_Worker_ObjWorker_getInfo ();
 
         default:
             return NULL;

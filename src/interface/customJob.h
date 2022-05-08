@@ -21,13 +21,28 @@ typedef struct {
 } MeshLoader_CustomJobInfo;
 
 extern MeshLoader_Result MeshLoader_Job_getProgress (
-        MeshLoader_Job_Context    jobData,
+        MeshLoader_Job_Context    jobContext,
         float                   * pProgress
 );
 
 extern MeshLoader_Result MeshLoader_Job_setProgress (
-        MeshLoader_Job_Context    jobData,
+        MeshLoader_Job_Context    jobContext,
         float                     progress
+);
+
+extern MeshLoader_Result MeshLoader_Job_getUserData (
+        MeshLoader_Job_Context    jobContext,
+        void                   ** ppUserData
+);
+
+extern MeshLoader_Result MeshLoader_Job_getDataFromPreviousCall (
+        MeshLoader_Job_Context    jobContext,
+        void                   ** ppData
+);
+
+extern MeshLoader_Result MeshLoader_Job_setDataForNextCall (
+        MeshLoader_Job_Context    jobContext,
+        void                    * pData
 );
 
 extern MeshLoader_Result MeshLoader_Job_finish (

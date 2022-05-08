@@ -423,6 +423,7 @@ static inline MeshLoader_Result __MeshLoader_JobWorker_loadJobData (
     jobData->loadMode           = pRuntimeContext->loadMode;
     jobData->inputPath          = pRuntimeContext->inputPath.string;
     jobData->pMemoryAllocator   = & pRuntimeContext->jobMemoryAllocator;
+    jobData->pNextCallData      = pRuntimeContext->pNextCallData;
 
     return MeshLoader_Result_Success;
 }
@@ -447,6 +448,8 @@ static inline MeshLoader_Result __MeshLoader_JobWorker_storeJobData (
             pRuntimeContext,
             jobData->status
     );
+
+    pRuntimeContext->pNextCallData = jobData->pNextCallData;
 
     return result;
 }
