@@ -21,19 +21,6 @@ MeshLoader_Result __MeshLoader_JobWorker_objWorkerMainFunction (
 
     MeshLoader_Result result;
 
-    char * p;
-
-    (void) MeshLoader_Job_allocateMemory (
-            context,
-            1,
-            (void **) & p
-    );
-
-    (void) MeshLoader_Job_freeMemory (
-            context,
-            (void *) p
-    );
-
     float progress;
 
     result = MeshLoader_Job_getProgress (
@@ -45,8 +32,8 @@ MeshLoader_Result __MeshLoader_JobWorker_objWorkerMainFunction (
         return result;
     }
 
-    if ( progress < .95f ) {
-        progress += .05f;
+    if ( progress < .9999995f ) {
+        progress += .0000005f;
     } else {
         progress = 1.0f;
 
