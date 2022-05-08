@@ -268,8 +268,8 @@ MeshLoader_Result MeshLoader_queryJobs (
 
     for ( MeshLoader_uint32 jobIndex = 0U; jobIndex < pQueryInfo->jobCount; ++ jobIndex ) {
 
-        result = MeshLoader_Job_getProgress (
-                pQueryInfo->pQueryJobInfos [ jobIndex ].job,
+        result = __MeshLoader_Job_getProgress (
+                & pQueryInfo->pQueryJobInfos [ jobIndex ].job->context,
                 & pQueryInfo->pQueryJobInfos [ jobIndex ].progress
         );
 

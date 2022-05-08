@@ -26,28 +26,47 @@ set (
 )
 
 set (
+        MESH_LOADER_IMPLEMENTATION_WORKERS_SOURCES
+
+        src/implementation/workers/specializedWorker.c
+        src/implementation/workers/specializedWorker.h
+
+        src/implementation/workers/objWorker.c
+        src/implementation/workers/objWorker.h
+)
+
+set (
         MESH_LOADER_IMPLEMENTATION_SOURCES
 
         ${MESH_LOADER_IMPLEMENTATION_POSIX_SOURCES}
         ${MESH_LOADER_IMPLEMENTATION_WIN32_SOURCES}
+        ${MESH_LOADER_IMPLEMENTATION_WORKERS_SOURCES}
 
         src/implementation/instance.h
         src/implementation/instance.c
+
         src/implementation/internalAllocation.h
         src/implementation/internalAllocation.c
+
         src/implementation/utility.c
         src/implementation/privateUtility.h
         src/implementation/privateTypes.h
+
         src/implementation/mutex.h
         src/implementation/thread.h
+
         src/implementation/job.c
         src/implementation/job.h
+
         src/implementation/jobDispatcher.c
         src/implementation/jobDispatcher.h
+
         src/implementation/jobWorker.c
         src/implementation/jobWorker.h
+
         src/implementation/jobPriorityQueue.c
         src/implementation/jobPriorityQueue.h
+
         src/implementation/string.c
         src/implementation/string.h
 )

@@ -6,6 +6,7 @@
 #define __MESH_LOADER_JOB_H__
 
 #include <meshLoader/publicTypes>
+#include <meshLoader/customJob>
 #include "thread.h"
 #include "mutex.h"
 #include "string.h"
@@ -13,22 +14,40 @@
 #include "../config/instanceCnf.h"
 
 typedef struct {
-    MeshLoader_MeshLoadModeFlags    loadMode;
-    __MeshLoader_String             inputPath;
-    atomic_uint_fast32_t            jobProgress;
-    atomic_uint_fast8_t             jobStatus;
+    MeshLoader_MeshLoadModeFlags        loadMode;
+    __MeshLoader_String                 inputPath;
+    atomic_uint_fast32_t                jobProgress;
+    atomic_uint_fast8_t                 jobStatus;
+    MeshLoader_CustomJobInfo    const * pCustomJobInfo;
 } __MeshLoader_Job_RuntimeContext;
+
+struct __MeshLoader_Job_Context {
+    MeshLoader_StructureType            structureType;
+    void                        const * pNext;
+    void                              * pUserData;
+    MeshLoader_MeshLoadModeFlags        loadMode;
+    MeshLoader_StringLiteral            inputPath;
+    float                               progress;
+    MeshLoader_JobStatus                status;
+};
 
 struct __MeshLoader_Job {
     __MeshLoader_Mutex                  jobLock;
     float                               priority;
 
     __MeshLoader_Job_RuntimeContext     context;
+    MeshLoader_JobType                  jobType;
 };
 
 extern MeshLoader_Result __MeshLoader_Job_construct (
         MeshLoader_Job,
         MeshLoader_CreateJobInfo        const *,
+        MeshLoader_AllocationCallbacks  const *
+);
+
+static MeshLoader_Result __MeshLoader_Job_constructCustomJobInfo (
+        MeshLoader_Job,
+        MeshLoader_CustomJobInfo        const *,
         MeshLoader_AllocationCallbacks  const *
 );
 

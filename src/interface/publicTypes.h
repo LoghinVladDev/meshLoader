@@ -74,6 +74,11 @@ typedef enum {
 } MeshLoader_StructureType;
 
 typedef enum {
+    MeshLoader_JobType_Obj                          = 0x00000000U,
+    MeshLoader_JobType_Custom                       = 0x00001000U,
+} MeshLoader_JobType;
+
+typedef enum {
     MeshLoader_SystemAllocationScope_Unknown        = 0x00000000U,
     MeshLoader_SystemAllocationScope_Instance       = 0x00000001U,
     MeshLoader_SystemAllocationScope_Worker         = 0x00000002U,
@@ -129,6 +134,16 @@ typedef void ( * MeshLoader_FreeFunction ) (
         void                              * pUserData,
         void                              * pMemory
 );
+
+typedef struct MeshLoader_BaseInStructure {
+    MeshLoader_StructureType                    structureType;
+    struct MeshLoader_BaseInStructure   const * pNext;
+} MeshLoader_BaseInStructure;
+
+typedef struct MeshLoader_BaseOutStructure {
+    MeshLoader_StructureType                    structureType;
+    struct MeshLoader_BaseOutStructure        * pNext;
+} MeshLoader_BaseOutStructure;
 
 typedef struct {
     MeshLoader_StructureType            structureType;
@@ -195,6 +210,7 @@ typedef struct {
 typedef struct {
     MeshLoader_StructureType            structureType;
     void                        const * pNext;
+    MeshLoader_JobType                  jobType;
     MeshLoader_MeshLoadModeFlags        loadMode;
     MeshLoader_StringLiteral            inputPath;
     float                               priority;

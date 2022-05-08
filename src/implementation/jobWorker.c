@@ -5,27 +5,9 @@
 #include "jobWorker.h"
 #include "instance.h"
 #include <stdalign.h>
+#include "job.h"
 
-static MeshLoader_Result __MeshLoader_JobWorker_defaultJobMainFunction (
-        MeshLoader_JobData *
-);
-
-static MeshLoader_CustomJobInfo const __MeshLoader_JobWorker_defaultJobInfo = {
-        .structureType      = MeshLoader_StructureType_CustomJobInfo,
-        .pNext              = NULL,
-        .pUserData          = NULL,
-        .jobFunction        = & __MeshLoader_JobWorker_defaultJobMainFunction
-};
-
-static inline MeshLoader_CustomJobInfo const * __MeshLoader_JobWorker_getJobInfo (
-        MeshLoader_CustomJobInfo    const * pCustomJobInfo
-) {
-    if ( pCustomJobInfo == NULL ) {
-        return & __MeshLoader_JobWorker_defaultJobInfo;
-    }
-
-    return pCustomJobInfo;
-}
+#include "workers/objWorker.h"
 
 MeshLoader_Result __MeshLoader_JobWorker_Manager_construct (
         MeshLoader_Instance                     instance,
@@ -178,7 +160,6 @@ MeshLoader_Result __MeshLoader_JobWorker_Manager_construct (
         pManager->pWorkers [ threadIndex ].state                            = __MeshLoader_JobWorker_State_NotStarted;
         pManager->pWorkers [ threadIndex ].keepAlive                        = MeshLoader_false;
         pManager->pWorkers [ threadIndex ].errorReason                      = NULL;
-        pManager->pWorkers [ threadIndex ].pCustomJobInfo                   = __MeshLoader_JobWorker_getJobInfo ( NULL );
     }
 
     return MeshLoader_Result_Success;
@@ -320,13 +301,12 @@ static void __MeshLoader_JobWorker_main (
 ) {
 
     MeshLoader_Result result;
-    __MeshLoader_JobWorker * pThis          = ( __MeshLoader_JobWorker * ) pParameters->pParameters[0U].pData;
-    MeshLoader_Instance      instance       = ( MeshLoader_Instance ) pParameters->pParameters[1U].pData;
+    __MeshLoader_JobWorker * pThis              = ( __MeshLoader_JobWorker * ) pParameters->pParameters[0U].pData;
+    MeshLoader_Instance      instance           = ( MeshLoader_Instance ) pParameters->pParameters[1U].pData;
 
-    MeshLoader_JobData       jobData        = {
+    struct __MeshLoader_Job_Context jobContext  = {
             .structureType                          = MeshLoader_StructureType_JobData,
             .pNext                                  = NULL,
-            .pUserData                              = pThis->pCustomJobInfo->pUserData,
             .inputPath                              = NULL,
             .loadMode                               = MeshLoader_nullFlags,
             .progress                               = .0f
@@ -355,7 +335,7 @@ static void __MeshLoader_JobWorker_main (
         }
 
         result = __MeshLoader_JobWorker_loadJobData (
-                & jobData,
+                & jobContext,
                 pThis->pRuntimeContext
         );
 
@@ -367,8 +347,8 @@ static void __MeshLoader_JobWorker_main (
 
         pThis->state = __MeshLoader_JobWorker_State_ExecutingJob;
 
-        result = pThis->pCustomJobInfo->jobFunction (
-                & jobData
+        result = pThis->pRuntimeContext->pCustomJobInfo->jobFunction (
+                & jobContext
         );
 
         if ( result != MeshLoader_Result_Success ) {
@@ -381,7 +361,7 @@ static void __MeshLoader_JobWorker_main (
 
         result = __MeshLoader_JobWorker_storeJobData (
                 pThis->pRuntimeContext,
-                & jobData
+                & jobContext
         );
 
         if ( result != MeshLoader_Result_Success ) {
@@ -416,7 +396,7 @@ static void __MeshLoader_JobWorker_main (
 }
 
 static inline MeshLoader_Result __MeshLoader_JobWorker_loadJobData (
-        MeshLoader_JobData                    * pJobData,
+        MeshLoader_Job_Context                  jobData,
         __MeshLoader_Job_RuntimeContext const * pRuntimeContext
 ) {
 
@@ -424,7 +404,7 @@ static inline MeshLoader_Result __MeshLoader_JobWorker_loadJobData (
 
     result = __MeshLoader_Job_getProgress (
             pRuntimeContext,
-            & pJobData->progress
+            & jobData->progress
     );
 
     if ( result != MeshLoader_Result_Success ) {
@@ -433,29 +413,29 @@ static inline MeshLoader_Result __MeshLoader_JobWorker_loadJobData (
 
     result = __MeshLoader_Job_getStatus (
             pRuntimeContext,
-            & pJobData->status
+            & jobData->status
     );
 
     if ( result != MeshLoader_Result_Success ) {
         return result;
     }
 
-    pJobData->loadMode  = pRuntimeContext->loadMode;
-    pJobData->inputPath = pRuntimeContext->inputPath.string;
+    jobData->loadMode  = pRuntimeContext->loadMode;
+    jobData->inputPath = pRuntimeContext->inputPath.string;
 
     return MeshLoader_Result_Success;
 }
 
 static inline MeshLoader_Result __MeshLoader_JobWorker_storeJobData (
         __MeshLoader_Job_RuntimeContext       * pRuntimeContext,
-        MeshLoader_JobData              const * pJobData
+        MeshLoader_Job_Context                  jobData
 ) {
 
     MeshLoader_Result result;
 
     result = __MeshLoader_Job_setProgress (
             pRuntimeContext,
-            pJobData->progress
+            jobData->progress
     );
 
     if ( result != MeshLoader_Result_Success ) {
@@ -464,23 +444,8 @@ static inline MeshLoader_Result __MeshLoader_JobWorker_storeJobData (
 
     result = __MeshLoader_Job_setStatus (
             pRuntimeContext,
-            pJobData->status
+            jobData->status
     );
 
     return result;
-}
-
-MeshLoader_Result __MeshLoader_JobWorker_defaultJobMainFunction (
-        MeshLoader_JobData * pContext
-) {
-    (void) pContext;
-
-    if ( pContext->progress < .95f ) {
-        pContext->progress += .05f;
-    } else {
-        pContext->progress  = 1.0f;
-        pContext->status    = MeshLoader_JobStatus_Finished;
-    }
-
-    return MeshLoader_Result_Success;
 }
