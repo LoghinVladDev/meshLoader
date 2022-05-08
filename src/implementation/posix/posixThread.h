@@ -19,6 +19,10 @@ extern void __MeshLoader_Thread_join (
         struct __MeshLoader_Posix_Thread *
 );
 
+extern void __MeshLoader_Thread_detach (
+        struct __MeshLoader_Posix_Thread *
+);
+
 extern void __MeshLoader_Thread_kill (
         struct __MeshLoader_Posix_Thread *
 );

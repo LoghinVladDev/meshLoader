@@ -133,8 +133,8 @@ static MeshLoader_Result __MeshLoader_Worker_ObjWorker_allocateResources (
 
     result = MeshLoader_Job_allocateMemory2 (
             context,
-            sizeof ( __MeshLoader_Worker_ObjWorker_Control ),
-            alignof ( __MeshLoader_Worker_ObjWorker_Control ),
+            sizeof ( struct __MeshLoader_Worker_ObjWorker_Control ),
+            alignof ( struct __MeshLoader_Worker_ObjWorker_Control ),
             (void **) pControl
     );
 

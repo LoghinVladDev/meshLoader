@@ -132,8 +132,12 @@ void __MeshLoader_Thread_destroy (
             .explicitMemoryPurpose      = "Destroys an Array of Thread Parameters"
     };
 
-    if ( pThread->running ) {
-        __MeshLoader_Thread_kill ( pThread );
+    if ( pThread->thread != __MeshLoader_Thread_InactiveThread ) {
+        if ( pThread->running ) {
+            __MeshLoader_Thread_kill ( pThread );
+        } else {
+            __MeshLoader_Thread_join ( pThread );
+        }
     }
 
     if ( pAllocationCallbacks->pAllocationCallbacks->internalFreeNotificationFunction != NULL ) {
@@ -201,6 +205,12 @@ void __MeshLoader_Thread_isRunning (
         MeshLoader_bool                  * pIsRunning
 ) {
     * pIsRunning = pThread->running;
+}
+
+void __MeshLoader_Thread_detach (
+        struct __MeshLoader_Posix_Thread * pThread
+) {
+    pthread_detach ( pThread->thread );
 }
 
 #endif

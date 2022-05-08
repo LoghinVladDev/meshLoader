@@ -393,6 +393,8 @@ static void __MeshLoader_JobWorker_main (
     }
 
     pThis->state = __MeshLoader_JobWorker_State_Cleanup;
+
+    __MeshLoader_Thread_detach ( pThis->thread );
 }
 
 static inline MeshLoader_Result __MeshLoader_JobWorker_loadJobData (
