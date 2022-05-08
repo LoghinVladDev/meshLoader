@@ -15,6 +15,7 @@ typedef enum {
     __MeshLoader_JobWorker_State_NotStarted             = 0x00000001U,
     __MeshLoader_JobWorker_State_Initializing           = 0x00000002U,
     __MeshLoader_JobWorker_State_AcquiringJobContext    = 0x00000003U,
+    __MeshLoader_JobWorker_State_ExecutingJob           = 0x00000004U,
     __MeshLoader_JobWorker_State_ReleasingJobContext    = 0x00000100U,
     __MeshLoader_JobWorker_State_Error                  = 0x00000200U,
     __MeshLoader_JobWorker_State_Cleanup                = 0x00000400U,
@@ -62,6 +63,16 @@ extern MeshLoader_Result __MeshLoader_JobWorker_Manager_newJobsAddedNotification
 extern MeshLoader_Result __MeshLoader_JobWorker_Manager_anyWorkersRunning (
         __MeshLoader_JobWorker_Manager *,
         MeshLoader_bool                *
+);
+
+static inline MeshLoader_Result __MeshLoader_JobWorker_loadJobData (
+        MeshLoader_JobData                    *,
+        __MeshLoader_Job_RuntimeContext const *
+);
+
+static inline MeshLoader_Result __MeshLoader_JobWorker_storeJobData (
+        __MeshLoader_Job_RuntimeContext       *,
+        MeshLoader_JobData              const *
 );
 
 #endif // __MESH_LOADER_JOB_WORKER_H__

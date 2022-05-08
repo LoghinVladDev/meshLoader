@@ -44,6 +44,7 @@ MeshLoader_Result __MeshLoader_Job_construct (
     job->priority               = pCreateInfo->priority;
     job->context.loadMode       = pCreateInfo->loadMode;
     job->context.jobProgress    = MESH_LOADER_JOB_PROGRESS_MIN_VALUE;
+    job->context.jobStatus      = ( MeshLoader_uint8 ) MeshLoader_JobStatus_Ready;
 
     return MeshLoader_Result_Success;
 }

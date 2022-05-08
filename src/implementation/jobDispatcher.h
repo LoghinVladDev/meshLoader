@@ -67,4 +67,9 @@ extern MeshLoader_Result __MeshLoader_JobDispatcher_releaseJob (
         float
 );
 
+static void __MeshLoader_JobDispatcher_removeContextNode (
+        __MeshLoader_JobDispatcher              *,
+        __MeshLoader_JobDispatcher_ContextNode  *
+);
+
 #endif // __MESH_LOADER_JOB_DISPATCHER_H__

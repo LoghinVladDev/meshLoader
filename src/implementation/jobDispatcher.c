@@ -379,6 +379,10 @@ MeshLoader_Result __MeshLoader_JobDispatcher_acquireJob (
 
     * ppContextNode     = pHighestPriorityContext;
 
+    if ( ( * ppRuntimeContext )->jobStatus == ( MeshLoader_uint8 ) MeshLoader_JobStatus_Ready ) {
+        ( * ppRuntimeContext )->jobStatus = ( MeshLoader_uint8 ) MeshLoader_JobStatus_Running;
+    }
+
     __MeshLoader_Mutex_unlock (
             pDispatcher->lock
     );
@@ -403,6 +407,26 @@ MeshLoader_Result __MeshLoader_JobDispatcher_releaseJob (
         return result;
     }
 
+    if (
+            pRuntimeContext->jobStatus == ( MeshLoader_uint8 ) MeshLoader_JobStatus_Finished ||
+            pRuntimeContext->jobStatus == ( MeshLoader_uint8 ) MeshLoader_JobStatus_FinishedError
+    ) {
+        pContextNode->context.finishedJobCount ++;
+
+        if ( pContextNode->context.finishedJobCount == pContextNode->context.jobCount ) {
+            __MeshLoader_JobDispatcher_removeContextNode (
+                    pDispatcher,
+                    pContextNode
+            );
+        }
+
+        __MeshLoader_Mutex_unlock (
+                pDispatcher->lock
+        );
+
+        return result;
+    }
+
     result = __MeshLoader_JobPriorityQueue_push (
             & pContextNode->context.jobQueue,
             pRuntimeContext,
@@ -422,4 +446,38 @@ MeshLoader_Result __MeshLoader_JobDispatcher_releaseJob (
     );
 
     return MeshLoader_Result_Success;
+}
+
+static void __MeshLoader_JobDispatcher_removeContextNode (
+        __MeshLoader_JobDispatcher              * pDispatcher,
+        __MeshLoader_JobDispatcher_ContextNode  * pContextNode
+) {
+
+    __MeshLoader_JobDispatcher_ContextNode * pToDelete;
+
+    if ( pContextNode == pDispatcher->contextList ) {
+        pToDelete                   = pDispatcher->contextList;
+        pDispatcher->contextList    = pDispatcher->contextList->pNext;
+
+        __MeshLoader_JobDispatcher_freeContext ( pToDelete );
+
+        return;
+    }
+
+    __MeshLoader_JobDispatcher_ContextNode * pHead = pDispatcher->contextList;
+
+    while ( pHead != NULL && pHead->pNext != NULL ) {
+
+        if ( pHead->pNext == pContextNode ) {
+
+            pToDelete       = pHead->pNext;
+            pHead->pNext    = pHead->pNext->pNext;
+
+            __MeshLoader_JobDispatcher_freeContext ( pToDelete );
+
+            return;
+        }
+
+        pHead = pHead->pNext;
+    }
 }

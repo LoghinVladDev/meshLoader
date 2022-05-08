@@ -16,6 +16,7 @@ typedef struct {
     MeshLoader_MeshLoadModeFlags    loadMode;
     __MeshLoader_String             inputPath;
     atomic_uint_fast32_t            jobProgress;
+    atomic_uint_fast8_t             jobStatus;
 } __MeshLoader_Job_RuntimeContext;
 
 struct __MeshLoader_Job {
@@ -47,12 +48,30 @@ static inline MeshLoader_Result __MeshLoader_Job_setProgress (
 }
 
 static inline MeshLoader_Result __MeshLoader_Job_getProgress (
-        __MeshLoader_Job_RuntimeContext   * pContext,
-        float                             * pProgress
+        __MeshLoader_Job_RuntimeContext   const * pContext,
+        float                                   * pProgress
 ) {
 
     * pProgress = ( float ) pContext->jobProgress / ( float ) MESH_LOADER_JOB_PROGRESS_MAX_VALUE;
 
+    return MeshLoader_Result_Success;
+}
+
+static inline MeshLoader_Result __MeshLoader_Job_setStatus (
+        __MeshLoader_Job_RuntimeContext   * pContext,
+        MeshLoader_JobStatus                status
+) {
+
+    pContext->jobStatus = ( MeshLoader_uint8 ) status;
+    return MeshLoader_Result_Success;
+}
+
+static inline MeshLoader_Result __MeshLoader_Job_getStatus (
+        __MeshLoader_Job_RuntimeContext   const * pContext,
+        MeshLoader_JobStatus                    * pStatus
+) {
+
+    * pStatus = ( MeshLoader_JobStatus ) pContext->jobStatus;
     return MeshLoader_Result_Success;
 }
 

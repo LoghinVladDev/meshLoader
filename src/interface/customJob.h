@@ -14,6 +14,7 @@ typedef struct {
     MeshLoader_MeshLoadModeFlags        loadMode;
     MeshLoader_StringLiteral            inputPath;
     float                               progress;
+    MeshLoader_JobStatus                status;
 } MeshLoader_JobData;
 
 extern MeshLoader_Result MeshLoader_Job_getProgress (

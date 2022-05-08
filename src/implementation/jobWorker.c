@@ -354,19 +354,18 @@ static void __MeshLoader_JobWorker_main (
             return;
         }
 
-        jobData.loadMode    = pThis->pRuntimeContext->loadMode;
-        jobData.inputPath   = pThis->pRuntimeContext->inputPath.string;
-
-        result = __MeshLoader_Job_getProgress (
-                pThis->pRuntimeContext,
-                & jobData.progress
+        result = __MeshLoader_JobWorker_loadJobData (
+                & jobData,
+                pThis->pRuntimeContext
         );
 
         if ( result != MeshLoader_Result_Success ) {
             pThis->state        = __MeshLoader_JobWorker_State_Error;
-            pThis->errorReason  = "Get Progress Error";
+            pThis->errorReason  = "Load Job Data Error";
             break;
         }
+
+        pThis->state = __MeshLoader_JobWorker_State_ExecutingJob;
 
         result = pThis->pCustomJobInfo->jobFunction (
                 & jobData
@@ -378,18 +377,18 @@ static void __MeshLoader_JobWorker_main (
             break;
         }
 
-        result = __MeshLoader_Job_setProgress (
+        pThis->state = __MeshLoader_JobWorker_State_ReleasingJobContext;
+
+        result = __MeshLoader_JobWorker_storeJobData (
                 pThis->pRuntimeContext,
-                jobData.progress
+                & jobData
         );
 
         if ( result != MeshLoader_Result_Success ) {
             pThis->state        = __MeshLoader_JobWorker_State_Error;
-            pThis->errorReason  = "Set Progress Error";
+            pThis->errorReason  = "Store Job Data Error";
             break;
         }
-
-        pThis->state = __MeshLoader_JobWorker_State_ReleasingJobContext;
 
         result = __MeshLoader_JobDispatcher_releaseJob (
                 & instance->dispatcher,
@@ -416,6 +415,61 @@ static void __MeshLoader_JobWorker_main (
     pThis->state = __MeshLoader_JobWorker_State_Cleanup;
 }
 
+static inline MeshLoader_Result __MeshLoader_JobWorker_loadJobData (
+        MeshLoader_JobData                    * pJobData,
+        __MeshLoader_Job_RuntimeContext const * pRuntimeContext
+) {
+
+    MeshLoader_Result result;
+
+    result = __MeshLoader_Job_getProgress (
+            pRuntimeContext,
+            & pJobData->progress
+    );
+
+    if ( result != MeshLoader_Result_Success ) {
+        return result;
+    }
+
+    result = __MeshLoader_Job_getStatus (
+            pRuntimeContext,
+            & pJobData->status
+    );
+
+    if ( result != MeshLoader_Result_Success ) {
+        return result;
+    }
+
+    pJobData->loadMode  = pRuntimeContext->loadMode;
+    pJobData->inputPath = pRuntimeContext->inputPath.string;
+
+    return MeshLoader_Result_Success;
+}
+
+static inline MeshLoader_Result __MeshLoader_JobWorker_storeJobData (
+        __MeshLoader_Job_RuntimeContext       * pRuntimeContext,
+        MeshLoader_JobData              const * pJobData
+) {
+
+    MeshLoader_Result result;
+
+    result = __MeshLoader_Job_setProgress (
+            pRuntimeContext,
+            pJobData->progress
+    );
+
+    if ( result != MeshLoader_Result_Success ) {
+        return result;
+    }
+
+    result = __MeshLoader_Job_setStatus (
+            pRuntimeContext,
+            pJobData->status
+    );
+
+    return result;
+}
+
 MeshLoader_Result __MeshLoader_JobWorker_defaultJobMainFunction (
         MeshLoader_JobData * pContext
 ) {
@@ -424,7 +478,8 @@ MeshLoader_Result __MeshLoader_JobWorker_defaultJobMainFunction (
     if ( pContext->progress < .95f ) {
         pContext->progress += .05f;
     } else {
-        pContext->progress = 1.0f;
+        pContext->progress  = 1.0f;
+        pContext->status    = MeshLoader_JobStatus_Finished;
     }
 
     return MeshLoader_Result_Success;
