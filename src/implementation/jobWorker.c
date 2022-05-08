@@ -331,7 +331,7 @@ static void __MeshLoader_JobWorker_main (
         }
 
         if ( pThis->pRuntimeContext == NULL ) {
-            return;
+            break;
         }
 
         result = __MeshLoader_JobWorker_loadJobData (
