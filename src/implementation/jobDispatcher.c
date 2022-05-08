@@ -6,7 +6,9 @@
 #include "jobDispatcher.h"
 #include "instance.h"
 #include "jobWorker.h"
+#include "job.h"
 #include <memory.h>
+#include <meshLoader/customJob>
 
 MeshLoader_Result __MeshLoader_JobDispatcher_construct (
         __MeshLoader_JobDispatcher            * pDispatcher,
@@ -261,8 +263,20 @@ MeshLoader_Result MeshLoader_queryJobs (
         MeshLoader_Instance                     instance,
         MeshLoader_JobsQueryInfo              * pQueryInfo
 ) {
-    (void) instance;
-    (void) pQueryInfo;
+
+    MeshLoader_Result result;
+
+    for ( MeshLoader_uint32 jobIndex = 0U; jobIndex < pQueryInfo->jobCount; ++ jobIndex ) {
+
+        result = MeshLoader_Job_getProgress (
+                pQueryInfo->pQueryJobInfos [ jobIndex ].job,
+                & pQueryInfo->pQueryJobInfos [ jobIndex ].progress
+        );
+
+        if ( result != MeshLoader_Result_Success ) {
+            return result;
+        }
+    }
 
     return MeshLoader_Result_Success;
 }

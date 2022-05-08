@@ -307,7 +307,8 @@ static void __MeshLoader_JobWorker_main (
             .pNext                                  = NULL,
             .pUserData                              = pThis->pCustomJobInfo->pUserData,
             .inputPath                              = NULL,
-            .loadMode                               = MeshLoader_nullFlags
+            .loadMode                               = MeshLoader_nullFlags,
+            .progress                               = .0f
     };
 
     pThis->state = __MeshLoader_JobWorker_State_Initializing;
@@ -335,6 +336,17 @@ static void __MeshLoader_JobWorker_main (
         jobData.loadMode    = pThis->pRuntimeContext->loadMode;
         jobData.inputPath   = pThis->pRuntimeContext->inputPath.string;
 
+        result = __MeshLoader_Job_getProgress (
+                pThis->pRuntimeContext,
+                & jobData.progress
+        );
+
+        if ( result != MeshLoader_Result_Success ) {
+            pThis->state        = __MeshLoader_JobWorker_State_Error;
+            pThis->errorReason  = "Get Progress Error";
+            break;
+        }
+
         result = pThis->pCustomJobInfo->jobFunction (
                 & jobData
         );
@@ -342,6 +354,17 @@ static void __MeshLoader_JobWorker_main (
         if ( result != MeshLoader_Result_Success ) {
             pThis->state        = __MeshLoader_JobWorker_State_Error;
             pThis->errorReason  = "Custom Job Error";
+            break;
+        }
+
+        result = __MeshLoader_Job_setProgress (
+                pThis->pRuntimeContext,
+                jobData.progress
+        );
+
+        if ( result != MeshLoader_Result_Success ) {
+            pThis->state        = __MeshLoader_JobWorker_State_Error;
+            pThis->errorReason  = "Set Progress Error";
             break;
         }
 
@@ -373,9 +396,15 @@ static void __MeshLoader_JobWorker_main (
 }
 
 MeshLoader_Result __MeshLoader_JobWorker_defaultJobMainFunction (
-        MeshLoader_JobData const * pContext
+        MeshLoader_JobData * pContext
 ) {
     (void) pContext;
+
+    if ( pContext->progress < .95f ) {
+        pContext->progress += .05f;
+    } else {
+        pContext->progress = 1.0f;
+    }
 
     return MeshLoader_Result_Success;
 }

@@ -4,6 +4,7 @@
 
 #include "job.h"
 #include <memory.h>
+#include "../config/instanceCnf.h"
 
 MeshLoader_Result __MeshLoader_Job_construct (
         MeshLoader_Job                          job,
@@ -41,8 +42,9 @@ MeshLoader_Result __MeshLoader_Job_construct (
         return result;
     }
 
-    job->priority           = pCreateInfo->priority;
-    job->context.loadMode   = pCreateInfo->loadMode;
+    job->priority               = pCreateInfo->priority;
+    job->context.loadMode       = pCreateInfo->loadMode;
+    job->context.jobProgress    = MESH_LOADER_JOB_PROGRESS_MIN_VALUE;
 
     return MeshLoader_Result_Success;
 }
@@ -65,5 +67,16 @@ void __MeshLoader_Job_destruct (
     __MeshLoader_String_destroy (
             & job->context.inputPath,
             & scopedAllocationCallbacks
+    );
+}
+
+MeshLoader_Result MeshLoader_Job_getProgress (
+        MeshLoader_Job      job,
+        float             * pProgress
+) {
+
+    return __MeshLoader_Job_getProgress (
+            & job->context,
+            pProgress
     );
 }

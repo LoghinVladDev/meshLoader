@@ -253,6 +253,7 @@ typedef struct {
 typedef struct {
     MeshLoader_StructureType            structureType;
     void                              * pNext;
+    MeshLoader_Job                      job;
     MeshLoader_JobStatus                status;
     float                               progress;
 } MeshLoader_QueryJobInfo;
@@ -277,25 +278,6 @@ typedef struct {
     MeshLoader_uint32                   jobCount;
     MeshLoader_JobResult              * pGetJobResults;
 } MeshLoader_JobsGetResultInfo;
-
-typedef struct {
-    MeshLoader_StructureType            structureType;
-    void                        const * pNext;
-    void                              * pUserData;
-    MeshLoader_MeshLoadModeFlags        loadMode;
-    MeshLoader_StringLiteral            inputPath;
-} MeshLoader_JobData;
-
-typedef MeshLoader_Result ( * MeshLoader_JobMainFunction ) (
-        MeshLoader_JobData const *
-);
-
-typedef struct {
-    MeshLoader_StructureType            structureType;
-    void                        const * pNext;
-    void                              * pUserData;
-    MeshLoader_JobMainFunction          jobFunction;
-} MeshLoader_CustomJobInfo;
 
 typedef MeshLoader_Result ( * MeshLoader_CreateInstanceFunction ) (
         MeshLoader_InstanceCreateInfo   const * pCreateInfo,

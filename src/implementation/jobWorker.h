@@ -6,6 +6,7 @@
 #define __MESH_LOADER_JOB_WORKER_H__
 
 #include <meshLoader/publicTypes>
+#include <meshLoader/customJob>
 #include "thread.h"
 #include "jobDispatcher.h"
 #include <stdatomic.h>
@@ -64,7 +65,7 @@ extern MeshLoader_Result __MeshLoader_JobWorker_Manager_anyWorkersRunning (
 );
 
 static MeshLoader_Result __MeshLoader_JobWorker_defaultJobMainFunction (
-        MeshLoader_JobData  const *
+        MeshLoader_JobData *
 );
 
 static MeshLoader_CustomJobInfo const __MeshLoader_JobWorker_defaultJobInfo = {

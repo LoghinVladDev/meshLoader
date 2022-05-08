@@ -79,9 +79,11 @@ int main() {
     };
 
     MeshLoader_QueryJobInfo queryInfos [jobCount];
+
     for ( int i = 0; i < jobCount; ++ i ) {
         queryInfos[i].structureType = MeshLoader_StructureType_QueryJobInfo;
         queryInfos[i].pNext         = NULL;
+        queryInfos[i].job           = jobs [i];
     }
 
     MeshLoader_JobsQueryInfo queryInfo = {
@@ -111,6 +113,18 @@ int main() {
         if ( result != MeshLoader_Result_Success ) {
             fprintf ( stderr, "Error occurred while querying jobs status" );
             break;
+        }
+
+        for ( int i = 0; i < jobCount; ++ i ) {
+
+            fprintf (
+                    stdout,
+                    "Job %d progress : %.2f\n",
+                    i,
+                    queryInfos[i].progress
+            );
+
+            fflush(stdout);
         }
 
         result = MeshLoader_anyJobsRunning ( instance, & anyRunning );
