@@ -5,6 +5,8 @@
 #ifndef __MESH_LOADER_POSIX_THREAD_H__
 #define __MESH_LOADER_POSIX_THREAD_H__
 
+#if defined(__linux__)
+
 #include <meshLoader/publicTypes>
 #include "../internalAllocation.h"
 
@@ -40,5 +42,7 @@ extern void __MeshLoader_Thread_isRunning (
         struct __MeshLoader_Posix_Thread    *,
         MeshLoader_bool                     *
 );
+
+#endif
 
 #endif // __MESH_LOADER_POSIX_THREAD_H__

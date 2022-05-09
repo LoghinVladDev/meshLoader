@@ -2,14 +2,14 @@
 // Created by loghin on 5/4/22.
 //
 
+#if defined(__linux__)
+
 #include <pthread.h>
 #include <meshLoader/publicTypes>
 #include <stdalign.h>
 #include <stdatomic.h>
 #include "../internalAllocation.h"
 #include "../thread.h"
-
-#if defined(__linux__)
 
 #define __MeshLoader_Thread_InactiveThread 0x0000000000000000U
 
@@ -174,6 +174,7 @@ void __MeshLoader_Thread_join (
         struct __MeshLoader_Posix_Thread * pThread
 ) {
     pthread_join ( pThread->thread, NULL );
+    pThread->running = MeshLoader_false;
 }
 
 void __MeshLoader_Thread_kill (
