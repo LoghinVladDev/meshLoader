@@ -200,6 +200,11 @@ void __MeshLoader_Job_destruct (
         );
     }
 
+    __MeshLoader_Mesh_destruct (
+            & job->context.mesh,
+            pAllocationCallbacks
+    );
+
     __MeshLoader_Mutex_destroy (
             job->jobLock,
             & scopedAllocationCallbacks

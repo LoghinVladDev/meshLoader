@@ -717,7 +717,7 @@ static MeshLoader_Result __MeshLoader_Worker_ObjWorker_insertIndexDataFromLastFa
     MeshLoader_size     newCapacity;
 
     if ( control->pIndexData->indexCount + 2U >= control->indexCapacity ) {
-        newCapacity = __MeshLoader_Utility_maxSize ( control->indexCapacity * 4U, control->pIndexData->indexCount + 1 );
+        newCapacity = __MeshLoader_Utility_maxSize ( control->indexCapacity * 4U, control->pIndexData->indexCount + 3U );
 
         result = MeshLoader_Job_reallocateMemory2 (
                 context,
@@ -734,9 +734,9 @@ static MeshLoader_Result __MeshLoader_Worker_ObjWorker_insertIndexDataFromLastFa
         control->indexCapacity = newCapacity;
     }
 
-    control->pIndices [ control->pIndexData->indexCount ++ ] = control->pFaces [ control->faceCount ].u;
-    control->pIndices [ control->pIndexData->indexCount ++ ] = control->pFaces [ control->faceCount ].v;
-    control->pIndices [ control->pIndexData->indexCount ++ ] = control->pFaces [ control->faceCount ].w;
+    control->pIndices [ control->pIndexData->indexCount ++ ] = control->pFaces [ control->faceCount - 1 ].u;
+    control->pIndices [ control->pIndexData->indexCount ++ ] = control->pFaces [ control->faceCount - 1 ].v;
+    control->pIndices [ control->pIndexData->indexCount ++ ] = control->pFaces [ control->faceCount - 1 ].w;
 
     return MeshLoader_Result_Success;
 }
