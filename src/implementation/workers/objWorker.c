@@ -204,7 +204,7 @@ static MeshLoader_Result __MeshLoader_Worker_ObjWorker_readAndDigestState (
 ) {
 
     MeshLoader_size startOfProcessFilePos   = control->filePosition;
-    MeshLoader_size currentlyProcessed      = 0U;
+    MeshLoader_size currentlyProcessed;
 
     MeshLoader_Result result;
 
