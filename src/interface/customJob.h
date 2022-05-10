@@ -56,14 +56,14 @@ extern MeshLoader_Result MeshLoader_Job_getInputPath (
 );
 
 extern MeshLoader_Result MeshLoader_Job_finish (
-        MeshLoader_Job_Context
+        MeshLoader_Job_Context      jobContext
 );
 
 extern MeshLoader_Result MeshLoader_Job_allocateMemory2 (
-        MeshLoader_Job_Context,
-        MeshLoader_size,
-        MeshLoader_size,
-        void                   **
+        MeshLoader_Job_Context    jobContext,
+        MeshLoader_size           size,
+        MeshLoader_size           alignment,
+        void                   ** ppMemory
 );
 
 static inline MeshLoader_Result MeshLoader_Job_allocateMemory (
@@ -80,11 +80,11 @@ static inline MeshLoader_Result MeshLoader_Job_allocateMemory (
 }
 
 extern MeshLoader_Result MeshLoader_Job_reallocateMemory2 (
-        MeshLoader_Job_Context,
-        void                    *,
-        MeshLoader_size,
-        MeshLoader_size,
-        void                   **
+        MeshLoader_Job_Context    jobContext,
+        void                    * pOldMemory,
+        MeshLoader_size           size,
+        MeshLoader_size           alignment,
+        void                   ** ppMemory
 );
 
 static inline MeshLoader_Result MeshLoader_Job_reallocateMemory (
@@ -103,30 +103,124 @@ static inline MeshLoader_Result MeshLoader_Job_reallocateMemory (
 }
 
 extern MeshLoader_Result MeshLoader_Job_freeMemory (
-        MeshLoader_Job_Context,
-        void                    *
+        MeshLoader_Job_Context    jobContext,
+        void                    * pMemory
 );
 
 extern MeshLoader_Result MeshLoader_Job_releaseMemory (
-        MeshLoader_Job_Context,
-        void                    *
+        MeshLoader_Job_Context    jobContext,
+        void                    * pMemory
 );
 
 extern MeshLoader_Result MeshLoader_Job_setMeshVertexData (
-        MeshLoader_Job_Context,
-        MeshLoader_uint32,
-        MeshLoader_VertexData   const *
+        MeshLoader_Job_Context          jobContext,
+        MeshLoader_uint32               vertexCount,
+        MeshLoader_VertexData   const * pVertices
 );
 
 extern MeshLoader_Result MeshLoader_Job_setMeshFaceData (
-        MeshLoader_Job_Context,
-        MeshLoader_uint32,
-        MeshLoader_FaceData     const *
+        MeshLoader_Job_Context          jobContext,
+        MeshLoader_uint32               faceCount,
+        MeshLoader_FaceData     const * pFaces
 );
 
 extern MeshLoader_Result MeshLoader_Job_setMeshIndexData (
-        MeshLoader_Job_Context,
-        MeshLoader_IndexData    const *
+        MeshLoader_Job_Context          jobContext,
+        MeshLoader_IndexData    const * pIndexData
+);
+
+typedef MeshLoader_Result ( * MeshLoader_Job_GetProgressFunction ) (
+        MeshLoader_Job_Context    jobContext,
+        float                   * pProgress
+);
+
+typedef MeshLoader_Result ( * MeshLoader_Job_SetProgressFunction ) (
+        MeshLoader_Job_Context    jobContext,
+        float                     progress
+);
+
+typedef MeshLoader_Result ( * MeshLoader_Job_GetUserDataFunction ) (
+        MeshLoader_Job_Context    jobContext,
+        void                   ** ppUserData
+);
+
+typedef MeshLoader_Result ( * MeshLoader_Job_GetDataFromPreviousCallFunction ) (
+        MeshLoader_Job_Context    jobContext,
+        void                   ** ppData
+);
+
+typedef MeshLoader_Result ( * MeshLoader_Job_SetDataForNextCallFunction ) (
+        MeshLoader_Job_Context    jobContext,
+        void                    * pData
+);
+
+typedef MeshLoader_Result ( * MeshLoader_Job_GetLoadModeFunction ) (
+        MeshLoader_Job_Context          jobContext,
+        MeshLoader_MeshLoadModeFlags  * pLoadMode
+);
+
+typedef MeshLoader_Result ( * MeshLoader_Job_GetInputPathFunction ) (
+        MeshLoader_Job_Context      jobContext,
+        MeshLoader_StringLiteral  * pPath
+);
+
+typedef MeshLoader_Result ( * MeshLoader_Job_FinishFunction ) (
+        MeshLoader_Job_Context      jobContext
+);
+
+typedef MeshLoader_Result ( * MeshLoader_Job_AllocateMemory2Function ) (
+        MeshLoader_Job_Context    jobContext,
+        MeshLoader_size           size,
+        MeshLoader_size           alignment,
+        void                   ** ppMemory
+);
+
+typedef MeshLoader_Result ( * MeshLoader_Job_AllocateMemoryFunction ) (
+        MeshLoader_Job_Context      context,
+        MeshLoader_size             size,
+        void                     ** ppMemory
+);
+
+typedef MeshLoader_Result ( * MeshLoader_Job_ReallocateMemory2Function ) (
+        MeshLoader_Job_Context    jobContext,
+        void                    * pOldMemory,
+        MeshLoader_size           size,
+        MeshLoader_size           alignment,
+        void                   ** ppMemory
+);
+
+typedef MeshLoader_Result ( * MeshLoader_Job_ReallocateMemoryFunction ) (
+        MeshLoader_Job_Context    context,
+        void                    * pOldMemory,
+        MeshLoader_size           newSize,
+        void                   ** ppMemory
+);
+
+typedef MeshLoader_Result ( * MeshLoader_Job_FreeMemoryFunction ) (
+        MeshLoader_Job_Context    jobContext,
+        void                    * pMemory
+);
+
+typedef MeshLoader_Result ( * MeshLoader_Job_ReleaseMemoryFunction ) (
+        MeshLoader_Job_Context    jobContext,
+        void                    * pMemory
+);
+
+typedef MeshLoader_Result ( * MeshLoader_Job_SetMeshVertexDataFunction ) (
+        MeshLoader_Job_Context          jobContext,
+        MeshLoader_uint32               vertexCount,
+        MeshLoader_VertexData   const * pVertices
+);
+
+typedef MeshLoader_Result ( * MeshLoader_Job_SetMeshFaceDataFunction ) (
+        MeshLoader_Job_Context          jobContext,
+        MeshLoader_uint32               faceCount,
+        MeshLoader_FaceData     const * pFaces
+);
+
+typedef MeshLoader_Result ( * MeshLoader_Job_SetMeshIndexDataFunction ) (
+        MeshLoader_Job_Context          jobContext,
+        MeshLoader_IndexData    const * pIndexData
 );
 
 #endif // __MESH_LOADER_CUSTOM_JOB_H__

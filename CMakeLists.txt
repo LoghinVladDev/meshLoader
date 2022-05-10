@@ -5,6 +5,18 @@ include_directories ( include )
 
 set(CMAKE_C_STANDARD 11)
 
+if (WIN32)
+    set (
+            MESH_LOADER_REQUIRED_LIBRARIES
+            ws2_32
+    )
+else()
+    set (
+            MESH_LOADER_REQUIRED_LIBRARIES
+            pthread
+    )
+endif()
+
 set (
         MESH_LOADER_IMPLEMENTATION_POSIX_SOURCES
 
@@ -102,7 +114,17 @@ set (
 add_executable (
         mesh_loader_basic_test
 
-        ${MESH_LOADER_SOURCES}
-
         src/tests/baseTest.c
+)
+
+target_link_libraries (
+        mesh_loader_basic_test
+        ${MESH_LOADER_REQUIRED_LIBRARIES}
+        meshloader
+)
+
+add_library (
+        meshloader
+
+        ${MESH_LOADER_SOURCES}
 )

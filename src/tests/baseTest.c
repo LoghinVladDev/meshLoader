@@ -28,18 +28,21 @@ int main() {
             {
                     .structureType  = MeshLoader_StructureType_CreateJobInfo,
                     .pNext          = NULL,
+                    .jobType        = MeshLoader_JobType_Obj,
                     .loadMode       = MeshLoader_MeshLoadModeFlag_LoadFaces | MeshLoader_MeshLoadModeFlag_LoadIndices,
                     .inputPath      = "../src/tests/data/baseTest/cow.obj",
                     .priority       = 1.0f
             }, {
                     .structureType  = MeshLoader_StructureType_CreateJobInfo,
                     .pNext          = NULL,
+                    .jobType        = MeshLoader_JobType_Obj,
                     .loadMode       = MeshLoader_MeshLoadModeFlag_LoadFaces | MeshLoader_MeshLoadModeFlag_LoadIndices,
                     .inputPath      = "../src/tests/data/baseTest/teapot.obj",
                     .priority       = .7f
             }, {
                     .structureType  = MeshLoader_StructureType_CreateJobInfo,
                     .pNext          = NULL,
+                    .jobType        = MeshLoader_JobType_Obj,
                     .loadMode       = MeshLoader_MeshLoadModeFlag_LoadFaces | MeshLoader_MeshLoadModeFlag_LoadIndices,
                     .inputPath      = "../src/tests/data/baseTest/teapot.obj",
                     .priority       = .5f
