@@ -194,7 +194,7 @@ static MeshLoader_Result __MeshLoader_Worker_ObjWorker_initializationState (
     control->filePosition   = 0U;
     fseek ( control->pFile, 0, SEEK_SET );
 
-    control->nextState = __MeshLoader_Worker_ObjWorker_State_Finished;
+    control->nextState = __MeshLoader_Worker_ObjWorker_State_ReadAndDigest;
     return MeshLoader_Result_Success;
 }
 
@@ -202,6 +202,40 @@ static MeshLoader_Result __MeshLoader_Worker_ObjWorker_readAndDigestState (
         MeshLoader_Job_Context                  context,
         __MeshLoader_Worker_ObjWorker_Control   control
 ) {
+
+    MeshLoader_size startOfProcessFilePos   = control->filePosition;
+    MeshLoader_size currentlyProcessed      = 0U;
+
+    MeshLoader_Result result;
+
+    while ( ! feof ( control->pFile ) ) {
+        (void) fgets (
+                & control->readBuffer[0],
+                MESH_LOADER_JOB_MAXIMUM_OBJ_FILE_LENGTH,
+                control->pFile
+        );
+
+        control->filePosition = ftell ( control->pFile );
+
+
+        currentlyProcessed = control->filePosition - startOfProcessFilePos;
+        if ( currentlyProcessed > MESH_LOADER_JOB_MAXIMUM_CYCLE_COUNT ) {
+            break;
+        }
+    }
+
+    result = MeshLoader_Job_setProgress (
+            context,
+            ( float ) control->filePosition / ( float ) control->fileSize
+    );
+
+    if ( result != MeshLoader_Result_Success ) {
+        return result;
+    }
+
+    if ( control->fileSize == control->filePosition ) {
+        control->state = __MeshLoader_Worker_ObjWorker_State_Finished;
+    }
 
     return MeshLoader_Result_Success;
 }

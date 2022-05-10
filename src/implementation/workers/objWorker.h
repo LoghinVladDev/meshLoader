@@ -8,6 +8,7 @@
 #include <meshLoader/publicTypes>
 #include <meshLoader/customJob>
 #include <stdio.h>
+#include "../../config/instanceCnf.h"
 
 typedef enum {
     __MeshLoader_Worker_ObjWorker_State_Initialization  = 0x00000001U,
@@ -33,6 +34,8 @@ struct __MeshLoader_Worker_ObjWorker_Control {
 
     FILE                                      * pFile;
     MeshLoader_size                             sizeInBytes;
+
+    char                                        readBuffer [ MESH_LOADER_JOB_MAXIMUM_OBJ_FILE_LENGTH ];
 
     MeshLoader_size                             fileSize;
     MeshLoader_size                             filePosition;
