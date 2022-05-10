@@ -388,8 +388,18 @@ static void __MeshLoader_JobWorker_main (
         pThis->pRuntimeContext                  = NULL;
     }
 
-    if ( pThis->state == __MeshLoader_JobWorker_State_Error ) {
-        /* empty for now */
+    if ( pThis->state == __MeshLoader_JobWorker_State_Error &&  pThis->pRuntimeContext != NULL ) {
+
+        pThis->pRuntimeContext->jobStatus = MeshLoader_JobStatus_FinishedError;
+        if ( pThis->pCurrentDispatcherContextNode != NULL ) {
+
+            (void) __MeshLoader_JobDispatcher_releaseJob (
+                    & instance->dispatcher,
+                    pThis->pCurrentDispatcherContextNode,
+                    pThis->pRuntimeContext,
+                    pThis->activeJobPriority
+            );
+        }
     }
 
     pThis->state = __MeshLoader_JobWorker_State_Cleanup;

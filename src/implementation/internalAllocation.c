@@ -13,6 +13,7 @@
 #include <memory.h>
 
 #include "mutex.h"
+#include <stdatomic.h>
 
 typedef struct __MeshLoader_InternalAllocation_MemoryTrackingNode {
     struct __MeshLoader_InternalAllocation_MemoryTrackingNode * pNext;
@@ -22,7 +23,7 @@ typedef struct __MeshLoader_InternalAllocation_MemoryTrackingNode {
 typedef struct {
     __MeshLoader_InternalAllocation_MemoryTrackingNode * pHead;
     MeshLoader_uint32                                    count;
-    MeshLoader_uint32                                    mutexInitialized;
+    atomic_bool                                         mutexInitialized;
     __MeshLoader_Mutex                                   lock;
 } __MeshLoader_InternalAllocation_MemoryTrackingList;
 
@@ -149,7 +150,15 @@ static void * __MeshLoader_InternalAllocation_reallocate (
     (void) alignment;
     (void) allocationScope;
 
-    return realloc ( pOriginal, size );
+    void * pRet;
+
+    if ( pOriginal == NULL ) {
+        pRet = malloc ( size );
+        return pRet;
+    }
+
+    pRet = realloc ( pOriginal, size );
+    return pRet;
 }
 
 static void __MeshLoader_InternalAllocation_free (
@@ -198,7 +207,7 @@ static void __MeshLoader_InternalAllocation_reallocationNotify (
 
     fprintf (
             stdout,
-            "[%s:%d] Reallocation of %llu bytes at %#020llx -> %#020llx, aligned at %llu, scope : %s. Purpose : %s\n",
+            "[%s:%d] Reallocation of %llu bytes at %#020llx from old %#020llx, aligned at %llu, scope : %s. Purpose : %s\n",
             __FILE__,
             __LINE__,
             pNotification->size,
@@ -282,6 +291,8 @@ static __MeshLoader_ScopedAllocationCallbacks const __MeshLoader_InternalAllocat
 
 static inline void __MeshLoader_InternalAllocation_initAllocationTracking () {
 
+    (void) __MeshLoader_Mutex_applyModuleLock();
+
     __MeshLoader_InternalAllocation_memoryTrackingList.count = 0U;
     __MeshLoader_InternalAllocation_memoryTrackingList.pHead = NULL;
 
@@ -293,6 +304,8 @@ static inline void __MeshLoader_InternalAllocation_initAllocationTracking () {
 
         __MeshLoader_InternalAllocation_memoryTrackingList.mutexInitialized = MeshLoader_true;
     }
+
+    __MeshLoader_Mutex_removeModuleLock();
 }
 
 static inline MeshLoader_bool __MeshLoader_InternalAllocation_allocationTrackingListEmpty () {

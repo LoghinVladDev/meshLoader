@@ -281,3 +281,37 @@ MeshLoader_Result MeshLoader_Job_getInputPath (
     * pInputPath = jobContext->inputPath;
     return MeshLoader_Result_Success;
 }
+
+MeshLoader_Result MeshLoader_Job_setMeshVertexData (
+        MeshLoader_Job_Context          jobContext,
+        MeshLoader_uint32               vertexCount,
+        MeshLoader_VertexData   const * pVertices
+) {
+
+    jobContext->mesh->data.pVertices    = pVertices;
+    jobContext->mesh->data.vertexCount  = vertexCount;
+
+    return MeshLoader_Result_Success;
+}
+
+MeshLoader_Result MeshLoader_Job_setMeshFaceData (
+        MeshLoader_Job_Context          jobContext,
+        MeshLoader_uint32               faceCount,
+        MeshLoader_FaceData     const * pFaces
+) {
+
+    jobContext->mesh->data.pFaces       = pFaces;
+    jobContext->mesh->data.faceCount    = faceCount;
+
+    return MeshLoader_Result_Success;
+}
+
+MeshLoader_Result MeshLoader_Job_setMeshIndexData (
+        MeshLoader_Job_Context          jobContext,
+        MeshLoader_IndexData    const * pIndexData
+) {
+
+    jobContext->mesh->data.pIndexData   = pIndexData;
+
+    return MeshLoader_Result_Success;
+}

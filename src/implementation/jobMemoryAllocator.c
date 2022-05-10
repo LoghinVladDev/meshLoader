@@ -7,6 +7,7 @@
 #include "jobMemoryAllocator.h"
 #include "../config/instanceCnf.h"
 #include "job.h"
+#include "privateUtility.h"
 
 MeshLoader_Result __MeshLoader_JobMemoryAllocator_construct (
         __MeshLoader_JobMemoryAllocator       * pMemoryAllocator,
@@ -198,13 +199,6 @@ MeshLoader_Result MeshLoader_Job_allocateMemory2 (
     return MeshLoader_Result_Success;
 }
 
-static inline MeshLoader_size __MeshLoader_JobMemoryAllocator_max (
-        MeshLoader_size a,
-        MeshLoader_size b
-) {
-    return a > b ? a : b;
-}
-
 static MeshLoader_Result __MeshLoader_JobMemoryAllocator_trackMemory (
         __MeshLoader_JobMemoryAllocator       * pMemoryAllocator,
         void                                  * pMemory,
@@ -218,7 +212,7 @@ static MeshLoader_Result __MeshLoader_JobMemoryAllocator_trackMemory (
                 .pNext                  = NULL,
                 .pMemory                = NULL,
                 .pOldMemory             = pMemoryAllocator->trackingList.pEntries,
-                .size                   = __MeshLoader_JobMemoryAllocator_max ( pMemoryAllocator->trackingList.length + 1U, 2 * pMemoryAllocator->trackingList.capacity ) * sizeof ( __MeshLoader_JobMemoryAllocator_TrackedEntry ),
+                .size                   = __MeshLoader_Utility_maxSize ( pMemoryAllocator->trackingList.length + 1U, 2 * pMemoryAllocator->trackingList.capacity ) * sizeof ( __MeshLoader_JobMemoryAllocator_TrackedEntry ),
                 .alignment              = alignof ( __MeshLoader_JobMemoryAllocator_TrackedEntry ),
                 .allocationScope        = MeshLoader_SystemAllocationScope_Object,
                 .explicitMemoryPurpose  = "Memory Resized, being the array used to track memory allocated from a Thread, for garbage collection in case of thread kill"
@@ -494,6 +488,8 @@ MeshLoader_Result MeshLoader_Job_reallocateMemory2 (
     __MeshLoader_Mutex_unlock (
             context->pMemoryAllocator->allocatorLock
     );
+
+    * ppNewMemory = allocationNotification.pMemory;
 
     return MeshLoader_Result_Success;
 }

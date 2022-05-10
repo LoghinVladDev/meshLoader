@@ -112,4 +112,21 @@ extern MeshLoader_Result MeshLoader_Job_releaseMemory (
         void                    *
 );
 
+extern MeshLoader_Result MeshLoader_Job_setMeshVertexData (
+        MeshLoader_Job_Context,
+        MeshLoader_uint32,
+        MeshLoader_VertexData   const *
+);
+
+extern MeshLoader_Result MeshLoader_Job_setMeshFaceData (
+        MeshLoader_Job_Context,
+        MeshLoader_uint32,
+        MeshLoader_FaceData     const *
+);
+
+extern MeshLoader_Result MeshLoader_Job_setMeshIndexData (
+        MeshLoader_Job_Context,
+        MeshLoader_IndexData    const *
+);
+
 #endif // __MESH_LOADER_CUSTOM_JOB_H__

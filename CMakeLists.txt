@@ -3,7 +3,7 @@ project(meshLoader C)
 
 include_directories ( include )
 
-set(CMAKE_C_STANDARD 99)
+set(CMAKE_C_STANDARD 11)
 
 set (
         MESH_LOADER_IMPLEMENTATION_POSIX_SOURCES

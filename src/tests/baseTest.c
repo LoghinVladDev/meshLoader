@@ -10,7 +10,7 @@ int main() {
 
     instanceCreateInfo.structureType            = MeshLoader_StructureType_InstanceCreateInfo;
     instanceCreateInfo.pNext                    = NULL;
-    instanceCreateInfo.maxWorkerThreadCount     = 8U;
+    instanceCreateInfo.maxWorkerThreadCount     = 1U;
     instanceCreateInfo.flags                    = MeshLoader_nullFlags;
 
     result = MeshLoader_createInstance (
