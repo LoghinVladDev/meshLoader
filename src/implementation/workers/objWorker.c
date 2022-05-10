@@ -359,6 +359,37 @@ static inline MeshLoader_bool __MeshLoader_Worker_ObjWorker_isComment (
     return MeshLoader_false;
 }
 
+static inline MeshLoader_bool __MeshLoader_Worker_ObjWorker_isBlank (
+        MeshLoader_StringLiteral    string,
+        MeshLoader_size             maxLength
+) {
+
+    MeshLoader_size index = 0U;
+    while ( index < maxLength ) {
+        if ( strchr ( " \t", string[index] ) != NULL ) {
+            continue;
+        }
+
+        if ( string [index] == '\n' ) {
+            return MeshLoader_true;
+        }
+
+        return MeshLoader_false;
+    }
+
+    return MeshLoader_false;
+}
+
+static inline MeshLoader_bool __MeshLoader_Worker_ObjWorker_isRelevant (
+        MeshLoader_StringLiteral    string,
+        MeshLoader_size             maxLength
+) {
+
+    return
+        ! __MeshLoader_Worker_ObjWorker_isComment ( string, maxLength ) &&
+        ! __MeshLoader_Worker_ObjWorker_isBlank ( string, maxLength );
+}
+
 static inline __MeshLoader_ObjFormat_LineDataType __MeshLoader_Worker_ObjWorker_detectDataType (
         MeshLoader_StringLiteral    dataBuffer
 ) {
@@ -411,7 +442,9 @@ static MeshLoader_Result __MeshLoader_Worker_ObjWorker_readAndDigestState (
 
         control->filePosition = ftell ( control->pFile );
 
-        if ( ! __MeshLoader_Worker_ObjWorker_isComment ( control->readBuffer, MESH_LOADER_JOB_MAXIMUM_OBJ_FILE_LENGTH ) ) {
+        if (
+                __MeshLoader_Worker_ObjWorker_isRelevant ( control->readBuffer, MESH_LOADER_JOB_MAXIMUM_OBJ_FILE_LENGTH )
+        ) {
 
             result = __MeshLoader_Worker_ObjWorker_insertData (
                     context,
