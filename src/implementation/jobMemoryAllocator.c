@@ -518,3 +518,27 @@ static MeshLoader_Result __MeshLoader_JobMemoryAllocator_reTrackMemory (
 
     return MeshLoader_Result_Success;
 }
+
+extern MeshLoader_Result MeshLoader_Job_releaseMemory (
+        MeshLoader_Job_Context  context,
+        void                  * pMemory
+) {
+
+    MeshLoader_Result result;
+
+    result = __MeshLoader_Mutex_lock (
+            context->pMemoryAllocator->allocatorLock
+    );
+
+    if ( result != MeshLoader_Result_Success ) {
+        return result;
+    }
+
+    result = __MeshLoader_JobMemoryAllocator_unTrackMemory (
+            context->pMemoryAllocator,
+            pMemory
+    );
+
+    __MeshLoader_Mutex_unlock ( context->pMemoryAllocator->allocatorLock );
+    return result;
+}

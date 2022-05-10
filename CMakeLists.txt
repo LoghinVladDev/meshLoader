@@ -52,6 +52,9 @@ set (
         src/implementation/privateUtility.h
         src/implementation/privateTypes.h
 
+        src/implementation/mesh.c
+        src/implementation/mesh.h
+
         src/implementation/mutex.h
         src/implementation/thread.h
 

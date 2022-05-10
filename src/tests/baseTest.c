@@ -29,19 +29,19 @@ int main() {
                     .structureType  = MeshLoader_StructureType_CreateJobInfo,
                     .pNext          = NULL,
                     .loadMode       = MeshLoader_MeshLoadModeFlag_LoadFaces | MeshLoader_MeshLoadModeFlag_LoadIndices,
-                    .inputPath      = "../tests/data/baseTest/cow.obj",
+                    .inputPath      = "../src/tests/data/baseTest/cow.obj",
                     .priority       = 1.0f
             }, {
                     .structureType  = MeshLoader_StructureType_CreateJobInfo,
                     .pNext          = NULL,
                     .loadMode       = MeshLoader_MeshLoadModeFlag_LoadFaces | MeshLoader_MeshLoadModeFlag_LoadIndices,
-                    .inputPath      = "../tests/data/baseTest/teapot.obj",
+                    .inputPath      = "../src/tests/data/baseTest/teapot.obj",
                     .priority       = .7f
             }, {
                     .structureType  = MeshLoader_StructureType_CreateJobInfo,
                     .pNext          = NULL,
                     .loadMode       = MeshLoader_MeshLoadModeFlag_LoadFaces | MeshLoader_MeshLoadModeFlag_LoadIndices,
-                    .inputPath      = "../tests/data/baseTest/teapot.obj",
+                    .inputPath      = "../src/tests/data/baseTest/teapot.obj",
                     .priority       = .5f
             }
     };

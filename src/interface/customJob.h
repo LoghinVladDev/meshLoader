@@ -45,6 +45,16 @@ extern MeshLoader_Result MeshLoader_Job_setDataForNextCall (
         void                    * pData
 );
 
+extern MeshLoader_Result MeshLoader_Job_getLoadMode (
+        MeshLoader_Job_Context          jobContext,
+        MeshLoader_MeshLoadModeFlags  * pLoadMode
+);
+
+extern MeshLoader_Result MeshLoader_Job_getInputPath (
+        MeshLoader_Job_Context      jobContext,
+        MeshLoader_StringLiteral  * pPath
+);
+
 extern MeshLoader_Result MeshLoader_Job_finish (
         MeshLoader_Job_Context
 );
@@ -93,6 +103,11 @@ static inline MeshLoader_Result MeshLoader_Job_reallocateMemory (
 }
 
 extern MeshLoader_Result MeshLoader_Job_freeMemory (
+        MeshLoader_Job_Context,
+        void                    *
+);
+
+extern MeshLoader_Result MeshLoader_Job_releaseMemory (
         MeshLoader_Job_Context,
         void                    *
 );

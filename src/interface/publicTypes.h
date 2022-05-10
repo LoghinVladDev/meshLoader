@@ -96,6 +96,7 @@ typedef enum {
     MeshLoader_Result_MutexError                    = 0x00000006U,
     MeshLoader_Result_PriorityQueueEmpty            = 0x00000007U,
     MeshLoader_Result_PriorityQueueFull             = 0x00000008U,
+    MeshLoader_Result_ResourceNotFound              = 0x00000009U,
 } MeshLoader_Result;
 
 typedef enum {
@@ -175,9 +176,9 @@ typedef struct {
 
 
 typedef struct {
-    float x;
-    float y;
-    float z;
+    double x;
+    double y;
+    double z;
 } MeshLoader_VertexData;
 
 typedef struct {

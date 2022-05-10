@@ -13,6 +13,7 @@
 #include <stdatomic.h>
 #include "../config/instanceCnf.h"
 #include "jobMemoryAllocator.h"
+#include "mesh.h"
 
 typedef struct {
     MeshLoader_MeshLoadModeFlags        loadMode;
@@ -22,6 +23,8 @@ typedef struct {
     MeshLoader_CustomJobInfo    const * pCustomJobInfo;
     __MeshLoader_JobMemoryAllocator     jobMemoryAllocator;
     void                              * pNextCallData;
+
+    struct __MeshLoader_Mesh            mesh;
 } __MeshLoader_Job_RuntimeContext;
 
 struct __MeshLoader_Job_Context {
@@ -34,6 +37,8 @@ struct __MeshLoader_Job_Context {
     MeshLoader_JobStatus                        status;
     __MeshLoader_JobMemoryAllocator           * pMemoryAllocator;
     void                                      * pNextCallData;
+
+    MeshLoader_Mesh                             mesh;
 };
 
 struct __MeshLoader_Job {

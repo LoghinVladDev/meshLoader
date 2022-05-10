@@ -7,9 +7,11 @@
 
 #include <meshLoader/publicTypes>
 #include <meshLoader/customJob>
+#include <stdio.h>
 
 typedef enum {
     __MeshLoader_Worker_ObjWorker_State_Initialization  = 0x00000001U,
+    __MeshLoader_Worker_ObjWorker_State_ReadAndDigest   = 0x00000002U,
     __MeshLoader_Worker_ObjWorker_State_Finished        = 0x00001000U,
     __MeshLoader_Worker_ObjWorker_State_Error           = 0x00002000U,
 } __MeshLoader_Worker_ObjWorker_State;
@@ -23,7 +25,21 @@ typedef MeshLoader_Result ( * __MeshLoader_Worker_ObjWorker_StateFunction ) (
 
 struct __MeshLoader_Worker_ObjWorker_Control {
     __MeshLoader_Worker_ObjWorker_State         state;
+    __MeshLoader_Worker_ObjWorker_State         nextState;
     __MeshLoader_Worker_ObjWorker_StateFunction stateFunction;
+
+    MeshLoader_StringLiteral                    inputPath;
+    MeshLoader_MeshLoadModeFlags                loadMode;
+
+    FILE                                      * pFile;
+    MeshLoader_size                             sizeInBytes;
+
+    MeshLoader_size                             fileSize;
+    MeshLoader_size                             filePosition;
+
+    MeshLoader_VertexData                       vertexData;
+    MeshLoader_FaceData                         faceData;
+    MeshLoader_IndexData                      * pIndexData;
 };
 
 extern MeshLoader_CustomJobInfo const * __MeshLoader_Worker_ObjWorker_getInfo ();
@@ -43,6 +59,11 @@ static void __MeshLoader_Worker_ObjWorker_freeResources (
 );
 
 static MeshLoader_Result __MeshLoader_Worker_ObjWorker_initializationState (
+        MeshLoader_Job_Context,
+        __MeshLoader_Worker_ObjWorker_Control
+);
+
+static MeshLoader_Result __MeshLoader_Worker_ObjWorker_readAndDigestState (
         MeshLoader_Job_Context,
         __MeshLoader_Worker_ObjWorker_Control
 );

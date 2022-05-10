@@ -22,6 +22,7 @@ static inline __MeshLoader_Worker_ObjWorker_StateFunction __MeshLoader_Worker_Ob
 
     switch ( state ) {
         case __MeshLoader_Worker_ObjWorker_State_Initialization:    return & __MeshLoader_Worker_ObjWorker_initializationState;
+        case __MeshLoader_Worker_ObjWorker_State_ReadAndDigest:     return & __MeshLoader_Worker_ObjWorker_readAndDigestState;
         case __MeshLoader_Worker_ObjWorker_State_Finished:          return & __MeshLoader_Worker_ObjWorker_finishedState;
         case __MeshLoader_Worker_ObjWorker_State_Error:             return & __MeshLoader_Worker_ObjWorker_errorState;
         default:                                                    return NULL;
@@ -54,9 +55,10 @@ MeshLoader_Result __MeshLoader_Worker_ObjWorker_mainFunction (
             return result;
         }
 
-        control->state = __MeshLoader_Worker_ObjWorker_State_Initialization;
+        control->nextState = __MeshLoader_Worker_ObjWorker_State_Initialization;
     }
 
+    control->state = control->nextState;
     control->stateFunction = __MeshLoader_Worker_ObjWorker_getStateFunction (
             control->state
     );
@@ -161,7 +163,46 @@ static MeshLoader_Result __MeshLoader_Worker_ObjWorker_initializationState (
         __MeshLoader_Worker_ObjWorker_Control   control
 ) {
 
-    control->state = __MeshLoader_Worker_ObjWorker_State_Finished;
+    MeshLoader_Result result;
+
+    result = MeshLoader_Job_getInputPath (
+            context,
+            & control->inputPath
+    );
+
+    if ( result != MeshLoader_Result_Success ) {
+        return result;
+    }
+
+    result = MeshLoader_Job_getLoadMode (
+            context,
+            & control->loadMode
+    );
+
+    if ( result != MeshLoader_Result_Success ) {
+        return result;
+    }
+
+    control->pFile = fopen ( control->inputPath, "r" );
+
+    if ( control->pFile == NULL ) {
+        return MeshLoader_Result_ResourceNotFound;
+    }
+
+    fseek ( control->pFile, 0, SEEK_END );
+    control->fileSize       = ftell ( control->pFile );
+    control->filePosition   = 0U;
+    fseek ( control->pFile, 0, SEEK_SET );
+
+    control->nextState = __MeshLoader_Worker_ObjWorker_State_Finished;
+    return MeshLoader_Result_Success;
+}
+
+static MeshLoader_Result __MeshLoader_Worker_ObjWorker_readAndDigestState (
+        MeshLoader_Job_Context                  context,
+        __MeshLoader_Worker_ObjWorker_Control   control
+) {
+
     return MeshLoader_Result_Success;
 }
 
@@ -169,6 +210,8 @@ static MeshLoader_Result __MeshLoader_Worker_ObjWorker_finishedState (
         MeshLoader_Job_Context                  context,
         __MeshLoader_Worker_ObjWorker_Control   control
 ) {
+
+    fclose ( control->pFile );
 
     return MeshLoader_Result_Success;
 }

@@ -46,6 +46,23 @@ MeshLoader_Result __MeshLoader_Job_construct (
         return result;
     }
 
+    result = __MeshLoader_Mesh_construct (
+            & job->context.mesh,
+            pAllocationCallbacks
+    );
+
+    if ( result != MeshLoader_Result_Success ) {
+        __MeshLoader_Mutex_destroy (
+                job->jobLock,
+                & scopedAllocationCallbacks
+        );
+
+        __MeshLoader_String_destroy (
+                & job->context.inputPath,
+                & scopedAllocationCallbacks
+        );
+    }
+
     while ( pNextStructure != NULL ) {
 
         switch ( pNextStructure->structureType ) {
@@ -65,6 +82,11 @@ MeshLoader_Result __MeshLoader_Job_construct (
         }
 
         if ( result != MeshLoader_Result_Success ) {
+            __MeshLoader_Mesh_destruct (
+                    & job->context.mesh,
+                    pAllocationCallbacks
+            );
+
             __MeshLoader_Mutex_destroy (
                     job->jobLock,
                     & scopedAllocationCallbacks
