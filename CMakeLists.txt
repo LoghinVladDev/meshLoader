@@ -6,10 +6,6 @@ include_directories ( include )
 set(CMAKE_C_STANDARD 11)
 
 if (WIN32)
-    set (
-            MESH_LOADER_REQUIRED_LIBRARIES
-            ws2_32
-    )
 else()
     set (
             MESH_LOADER_REQUIRED_LIBRARIES
