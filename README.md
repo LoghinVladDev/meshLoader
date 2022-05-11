@@ -33,9 +33,7 @@ link_libraries(meshloader)
 Also to be added to install later, until then
 
 Adding the library via release
-Download meshLoader-x.y.z.zip from releases
-
-extract library to desired project
+Download meshLoader-x.y.z.zip from releases and extract library to desired project
 
 Integration via CMake
 
