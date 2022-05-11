@@ -9,6 +9,8 @@
 extern "C" {
 #endif
 
+#define MESH_LOADER_DEFINE_HANDLE(_handle)    typedef struct __ ## _handle * _handle;
+
 #define MeshLoader_true                 0x01U
 #define MeshLoader_false                0x00U
 
@@ -46,9 +48,10 @@ typedef MeshLoader_Flags                MeshLoader_JobsQueryFlags;
 typedef MeshLoader_Flags                MeshLoader_MeshLoadModeFlags;
 
 typedef void                          * MeshLoader_Handle;
-typedef struct __MeshLoader_Instance  * MeshLoader_Instance;
-typedef struct __MeshLoader_Job       * MeshLoader_Job;
-typedef struct __MeshLoader_Mesh      * MeshLoader_Mesh;
+
+MESH_LOADER_DEFINE_HANDLE ( MeshLoader_Instance )
+MESH_LOADER_DEFINE_HANDLE ( MeshLoader_Job )
+MESH_LOADER_DEFINE_HANDLE ( MeshLoader_Mesh )
 
 
 typedef enum {
