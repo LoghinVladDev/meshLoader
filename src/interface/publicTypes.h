@@ -5,6 +5,10 @@
 #ifndef __MESH_LOADER_PUBLIC_TYPES_H__
 #define __MESH_LOADER_PUBLIC_TYPES_H__
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 #define MeshLoader_true                 0x01U
 #define MeshLoader_false                0x00U
 
@@ -339,5 +343,9 @@ typedef MeshLoader_Result ( * MeshLoader_AnyJobsRunningFunction ) (
         MeshLoader_Instance                     instance,
         MeshLoader_bool                       * pAnyRunning
 );
+
+#if defined(__cplusplus)
+}
+#endif
 
 #endif // __MESH_LOADER_PUBLIC_TYPES_H__

@@ -5,6 +5,10 @@
 #ifndef __MESH_LOADER_MESH_LOADER_H__
 #define __MESH_LOADER_MESH_LOADER_H__
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 #include <meshLoader/publicTypes>
 
 extern MeshLoader_Result MeshLoader_createInstance (
@@ -50,5 +54,9 @@ extern MeshLoader_Result MeshLoader_anyJobsRunning (
         MeshLoader_Instance                     instance,
         MeshLoader_bool                       * pAnyRunning
 );
+
+#if defined(__cplusplus)
+}
+#endif
 
 #endif // __MESH_LOADER_MESH_LOADER_H__

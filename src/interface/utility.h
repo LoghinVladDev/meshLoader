@@ -5,6 +5,10 @@
 #ifndef __MESH_LOADER_UTILITY_H__
 #define __MESH_LOADER_UTILITY_H__
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 #include <meshLoader/publicTypes>
 
 extern MeshLoader_StringLiteral MeshLoader_StructureType_toString ( MeshLoader_StructureType );
@@ -27,5 +31,9 @@ extern MeshLoader_size MeshLoader_CreateJobInfo_toString ( MeshLoader_CreateJobI
 extern MeshLoader_size MeshLoader_QueryJobInfo_toString ( MeshLoader_QueryJobInfo const * );
 extern MeshLoader_size MeshLoader_JobResult_toString ( MeshLoader_JobResult const * );
 extern MeshLoader_size MeshLoader_AllocationNotification_toString ( MeshLoader_AllocationNotification const * );
+
+#if defined(__cplusplus)
+}
+#endif
 
 #endif // __MESH_LOADER_UTILITY_H__

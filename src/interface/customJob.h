@@ -5,6 +5,10 @@
 #ifndef __MESH_LOADER_CUSTOM_JOB_H__
 #define __MESH_LOADER_CUSTOM_JOB_H__
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 #include <meshLoader/publicTypes>
 
 typedef struct __MeshLoader_Job_Context * MeshLoader_Job_Context;
@@ -222,5 +226,9 @@ typedef MeshLoader_Result ( * MeshLoader_Job_SetMeshIndexDataFunction ) (
         MeshLoader_Job_Context          jobContext,
         MeshLoader_IndexData    const * pIndexData
 );
+
+#if defined(__cplusplus)
+}
+#endif
 
 #endif // __MESH_LOADER_CUSTOM_JOB_H__
