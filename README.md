@@ -28,4 +28,5 @@ link_libraries(meshloader)
 
 ### Install TBA
 
-### Usage TBA
+### Usage
+For usage guidelines, the [Specification](https://github.com/LoghinVladDev/meshLoader/wiki) is available as a GitHub wiki page
