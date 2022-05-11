@@ -15,8 +15,8 @@ int main() {
 
     result = MeshLoader_createInstance (
             & instanceCreateInfo,
-            & instance,
-            NULL
+            NULL,
+            & instance
     );
 
     if ( result != MeshLoader_Result_Success ) {

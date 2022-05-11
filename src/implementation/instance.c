@@ -12,8 +12,8 @@ static __MeshLoader_Instance_Control __MeshLoader_Instance_control;
 
 MeshLoader_Result MeshLoader_createInstance (
         MeshLoader_InstanceCreateInfo   const * pCreateInfo,
-        MeshLoader_Instance                   * pInstance,
-        MeshLoader_AllocationCallbacks  const * pAllocationCallbacks
+        MeshLoader_AllocationCallbacks  const * pAllocationCallbacks,
+        MeshLoader_Instance                   * pInstance
 ) {
     MeshLoader_Instance          newInstance;
     MeshLoader_Result            result;

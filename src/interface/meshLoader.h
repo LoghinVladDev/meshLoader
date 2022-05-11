@@ -9,8 +9,8 @@
 
 extern MeshLoader_Result MeshLoader_createInstance (
         MeshLoader_InstanceCreateInfo   const * pCreateInfo,
-        MeshLoader_Instance                   * pInstance,
-        MeshLoader_AllocationCallbacks  const * pAllocationCallbacks
+        MeshLoader_AllocationCallbacks  const * pAllocationCallbacks,
+        MeshLoader_Instance                   * pInstance
 );
 
 extern void MeshLoader_destroyInstance (

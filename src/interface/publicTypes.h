@@ -298,8 +298,8 @@ typedef struct {
 
 typedef MeshLoader_Result ( * MeshLoader_CreateInstanceFunction ) (
         MeshLoader_InstanceCreateInfo   const * pCreateInfo,
-        MeshLoader_Instance                   * pInstance,
-        MeshLoader_AllocationCallbacks  const * pAllocationCallbacks
+        MeshLoader_AllocationCallbacks  const * pAllocationCallbacks,
+        MeshLoader_Instance                   * pInstance
 );
 
 typedef void ( * MeshLoader_DestroyInstanceFunction ) (
