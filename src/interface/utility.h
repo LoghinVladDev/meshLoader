@@ -26,10 +26,8 @@ extern MeshLoader_size MeshLoader_JobsResumeInfo_toString ( MeshLoader_JobsResum
 extern MeshLoader_size MeshLoader_JobsStopInfo_toString ( MeshLoader_JobsStopInfo const * );
 extern MeshLoader_size MeshLoader_JobsTerminateInfo_toString ( MeshLoader_JobsTerminateInfo const * );
 extern MeshLoader_size MeshLoader_JobsQueryInfo_toString ( MeshLoader_JobsQueryInfo const * );
-extern MeshLoader_size MeshLoader_JobsGetResultInfo_toString ( MeshLoader_JobsGetResultInfo const * );
 extern MeshLoader_size MeshLoader_CreateJobInfo_toString ( MeshLoader_CreateJobInfo const * );
 extern MeshLoader_size MeshLoader_QueryJobInfo_toString ( MeshLoader_QueryJobInfo const * );
-extern MeshLoader_size MeshLoader_JobResult_toString ( MeshLoader_JobResult const * );
 extern MeshLoader_size MeshLoader_AllocationNotification_toString ( MeshLoader_AllocationNotification const * );
 
 #if defined(__cplusplus)

@@ -68,13 +68,11 @@ typedef enum {
     MeshLoader_StructureType_JobsStopInfo           = 0x00000007U,
     MeshLoader_StructureType_JobsTerminateInfo      = 0x00000008U,
     MeshLoader_StructureType_JobsQueryInfo          = 0x00000009U,
-    MeshLoader_StructureType_JobsGetResultInfo      = 0x0000000AU,
 
-    MeshLoader_StructureType_CreateJobInfo          = 0x0000000BU,
-    MeshLoader_StructureType_QueryJobInfo           = 0x00000011U,
-    MeshLoader_StructureType_JobResult              = 0x00000012U,
+    MeshLoader_StructureType_CreateJobInfo          = 0x00000010U,
+    MeshLoader_StructureType_QueryJobInfo           = 0x0000000AU,
 
-    MeshLoader_StructureType_AllocationNotification = 0x00000013U,
+    MeshLoader_StructureType_AllocationNotification = 0x0000000CU,
 
     MeshLoader_StructureType_JobData                = 0x00001000U,
     MeshLoader_StructureType_CustomJobInfo          = 0x00001001U,
@@ -94,16 +92,19 @@ typedef enum {
 } MeshLoader_SystemAllocationScope;
 
 typedef enum {
-    MeshLoader_Result_Success                       = 0x00000000U,
-    MeshLoader_Result_ErrorUnknown                  = 0x00000001U,
-    MeshLoader_Result_IllegalArgument               = 0x00000002U,
-    MeshLoader_Result_TooSmall                      = 0x00000003U,
-    MeshLoader_Result_TooManyObjects                = 0x00000004U,
-    MeshLoader_Result_OutOfMemory                   = 0x00000005U,
-    MeshLoader_Result_MutexError                    = 0x00000006U,
-    MeshLoader_Result_PriorityQueueEmpty            = 0x00000007U,
-    MeshLoader_Result_PriorityQueueFull             = 0x00000008U,
-    MeshLoader_Result_ResourceNotFound              = 0x00000009U,
+    MeshLoader_Result_Success                       = 0,
+    MeshLoader_Result_NotReady                      = 1,
+    MeshLoader_Result_TooSmall                      = 2,
+    MeshLoader_Result_JobNotStarted                 = 3,
+    MeshLoader_Result_ErrorUnknown                  = -1,
+    MeshLoader_Result_IllegalArgument               = -2,
+    MeshLoader_Result_TooManyObjects                = -3,
+    MeshLoader_Result_OutOfMemory                   = -4,
+    MeshLoader_Result_MutexError                    = -5,
+    MeshLoader_Result_PriorityQueueEmpty            = -6,
+    MeshLoader_Result_PriorityQueueFull             = -7,
+    MeshLoader_Result_ResourceNotFound              = -8,
+    MeshLoader_Result_JobExecutionFailed            = -9,
 } MeshLoader_Result;
 
 typedef enum {
@@ -290,19 +291,6 @@ typedef struct {
     MeshLoader_QueryJobInfo           * pQueryJobInfos;
 } MeshLoader_JobsQueryInfo;
 
-typedef struct {
-    MeshLoader_StructureType            structureType;
-    void                              * pNext;
-    MeshLoader_Mesh                   * pMesh;
-} MeshLoader_JobResult;
-
-typedef struct {
-    MeshLoader_StructureType            structureType;
-    void                              * pNext;
-    MeshLoader_uint32                   jobCount;
-    MeshLoader_JobResult              * pGetJobResults;
-} MeshLoader_JobsGetResultInfo;
-
 typedef MeshLoader_Result ( * MeshLoader_CreateInstanceFunction ) (
         MeshLoader_InstanceCreateInfo   const * pCreateInfo,
         MeshLoader_AllocationCallbacks  const * pAllocationCallbacks,
@@ -335,11 +323,6 @@ typedef MeshLoader_Result ( * MeshLoader_StartJobsFunction ) (
 typedef MeshLoader_Result ( * MeshLoader_QueryJobsFunction ) (
         MeshLoader_Instance                     instance,
         MeshLoader_JobsQueryInfo              * pQueryInfo
-);
-
-typedef MeshLoader_Result ( * MeshLoader_GetResultsFunction ) (
-        MeshLoader_Instance                     instance,
-        MeshLoader_JobsGetResultInfo          * pResults
 );
 
 typedef MeshLoader_Result ( * MeshLoader_AnyJobsRunningFunction ) (

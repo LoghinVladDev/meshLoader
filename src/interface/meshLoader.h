@@ -45,14 +45,48 @@ extern MeshLoader_Result MeshLoader_queryJobs (
         MeshLoader_JobsQueryInfo              * pQueryInfo
 );
 
-extern MeshLoader_Result MeshLoader_getResults (
-        MeshLoader_Instance                     instance,
-        MeshLoader_JobsGetResultInfo          * pResults
-);
-
 extern MeshLoader_Result MeshLoader_anyJobsRunning (
         MeshLoader_Instance                     instance,
         MeshLoader_bool                       * pAnyRunning
+);
+
+extern MeshLoader_Result MeshLoader_takeMesh (
+        MeshLoader_Job                          job,
+        MeshLoader_AllocationCallbacks  const * pAllocationCallbacks,
+        MeshLoader_Mesh                       * pMesh
+);
+
+extern MeshLoader_Result MeshLoader_getMesh (
+        MeshLoader_Job                          job,
+        MeshLoader_Mesh                       * pMesh
+);
+
+extern void MeshLoader_destroyMesh (
+        MeshLoader_Mesh                         mesh,
+        MeshLoader_AllocationCallbacks  const * pAllocationCallbacks
+);
+
+extern MeshLoader_Result MeshLoader_enumerateMeshVertices (
+        MeshLoader_Mesh                         mesh,
+        MeshLoader_uint32                     * pVertexCount,
+        MeshLoader_VertexData                 * pVertices
+);
+
+extern MeshLoader_Result MeshLoader_enumerateMeshFaces (
+        MeshLoader_Mesh                         mesh,
+        MeshLoader_uint32                     * pFaceCount,
+        MeshLoader_FaceData                   * pFaces
+);
+
+extern MeshLoader_Result MeshLoader_enumerateIndices (
+        MeshLoader_Mesh                         mesh,
+        MeshLoader_uint32                     * pIndexCount,
+        MeshLoader_uint32                     * pIndices
+);
+
+extern MeshLoader_Result MeshLoader_getMeshData (
+        MeshLoader_Mesh                         mesh,
+        MeshLoader_MeshData                   * pMeshData
 );
 
 #if defined(__cplusplus)

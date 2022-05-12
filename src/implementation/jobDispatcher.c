@@ -323,16 +323,6 @@ MeshLoader_Result MeshLoader_queryJobs (
     return MeshLoader_Result_Success;
 }
 
-MeshLoader_Result MeshLoader_getResults (
-        MeshLoader_Instance                     instance,
-        MeshLoader_JobsGetResultInfo          * pResults
-) {
-    (void) instance;
-    (void) pResults;
-
-    return MeshLoader_Result_Success;
-}
-
 MeshLoader_Result MeshLoader_anyJobsRunning (
         MeshLoader_Instance                     instance,
         MeshLoader_bool                       * pAnyRunning

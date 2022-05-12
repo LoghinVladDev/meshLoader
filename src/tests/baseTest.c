@@ -1,6 +1,28 @@
 #include <meshLoader/meshLoader>
 #include <stdio.h>
 
+static void dumpMesh (
+        MeshLoader_MeshData const * pMeshData,
+        MeshLoader_StringLiteral    fileName
+) {
+
+    FILE * outFile = fopen ( fileName, "w" );
+
+    if ( outFile == NULL ) {
+        return;
+    }
+
+    for ( unsigned int i = 0; i < pMeshData->vertexCount; ++ i ) {
+        fprintf ( outFile, "v %lf %lf %lf\n", pMeshData->pVertices[i].x, pMeshData->pVertices[i].y, pMeshData->pVertices[i].z );
+    }
+
+    for ( unsigned int i = 0; i < pMeshData->faceCount; ++ i ) {
+        fprintf ( outFile, "f %u %u %u\n", pMeshData->pFaces[i].u, pMeshData->pFaces[i].v, pMeshData->pFaces[i].w );
+    }
+
+    fclose ( outFile );
+}
+
 int main() {
 
     MeshLoader_Result               result;
@@ -44,7 +66,7 @@ int main() {
                     .pNext          = NULL,
                     .jobType        = MeshLoader_JobType_Obj,
                     .loadMode       = MeshLoader_MeshLoadModeFlag_LoadFaces | MeshLoader_MeshLoadModeFlag_LoadIndices,
-                    .inputPath      = "../src/tests/data/baseTest/teapot.obj",
+                    .inputPath      = "../src/tests/data/baseTest/pumpkin.obj",
                     .priority       = .5f
             }
     };
@@ -105,6 +127,9 @@ int main() {
             & startInfo
     );
 
+    MeshLoader_Mesh         meshes [jobCount];
+    MeshLoader_MeshData     meshDataArray [jobCount];
+
     if ( result != MeshLoader_Result_Success ) {
         fprintf ( stderr, "Failed to start jobs" );
         goto end;
@@ -139,6 +164,37 @@ int main() {
         }
 
     } while ( anyRunning );
+
+    for ( int i = 0; i < jobCount; ++ i ) {
+        result = MeshLoader_takeMesh (
+                jobs [i],
+                NULL,
+                & meshes [i]
+        );
+
+        if ( result != MeshLoader_Result_Success ) {
+            fprintf ( stderr, "Failed to Acquire Mesh from Job" );
+            goto end;
+        }
+
+        result = MeshLoader_getMeshData (
+                meshes [i],
+                & meshDataArray [i]
+        );
+
+        if ( result != MeshLoader_Result_Success ) {
+            fprintf ( stderr, "Failed to Acquire Mesh Data from Mesh" );
+            goto end;
+        }
+    }
+
+    dumpMesh ( & meshDataArray[0], "cow.obj" );
+    dumpMesh ( & meshDataArray[1], "teapot.obj" );
+    dumpMesh ( & meshDataArray[2], "pumpkin.obj" );
+
+    for ( int i = 0; i < jobCount; ++ i ) {
+        MeshLoader_destroyMesh ( meshes [i], NULL );
+    }
 
 end:
     MeshLoader_destroyJobs ( instance, jobCount, & jobs[0], NULL );
