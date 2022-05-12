@@ -7,6 +7,8 @@ API inspired from vulkan API
 
 ### Project Integration
 
+#### Option 1 - Building in the Project
+
 Adding the library via clone
 ```shell
 mkdir project/library/folder
@@ -26,6 +28,21 @@ include_directories(project/library/folder/include)
 link_libraries(meshloader)
 ```
 
+#### Option 2 - Integrating a Release
+
+Also to be added to install later, until then
+
+Adding the library via release
+Download meshLoader-x.y.z.zip from releases and extract library to desired project
+
+Integration via CMake
+
+```cmake
+include_directories(project/library/folder/include)
+link_libraries(project/library/folder/lib/libmeshloader.a)
+```
+
 ### Install TBA
 
-### Usage TBA
+### Usage
+For usage guidelines, the [Specification](https://github.com/LoghinVladDev/meshLoader/wiki) is available as a GitHub wiki page
