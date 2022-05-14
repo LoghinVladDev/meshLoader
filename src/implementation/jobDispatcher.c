@@ -100,7 +100,10 @@ static void __MeshLoader_JobDispatcher_freeContext (
             & scopedAllocationCallbacks
     );
 
-    /* TODO: clear the inactive queue as well */
+    __MeshLoader_JobPauseTable_destruct (
+            & pNode->context.jobPauseTable,
+            & scopedAllocationCallbacks
+    );
 
     allocationNotification.pMemory = pNode;
 
@@ -123,7 +126,7 @@ static MeshLoader_Result __MeshLoader_JobDispatcher_allocateContext (
 ) {
 
     MeshLoader_Result                       result;
-    MeshLoader_AllocationCallbacks  const * pAllocationCallbacks        = __MeshLoader_InternalAllocation_getCallbacks ( pStartInfo->pAllocationCallbacks );
+    MeshLoader_AllocationCallbacks  const * pAllocationCallbacks        = __MeshLoader_InternalAllocation_getCallbacks ();
     MeshLoader_AllocationNotification       allocationNotification      = {
             .structureType              = MeshLoader_StructureType_AllocationNotification,
             .pNext                      = NULL,
@@ -176,9 +179,34 @@ static MeshLoader_Result __MeshLoader_JobDispatcher_allocateContext (
             & scopedAllocationCallbacks
     );
 
-    /* TODO: construct inactive queue as well */
-
     if ( result != MeshLoader_Result_Success )  {
+        if ( pAllocationCallbacks->internalFreeNotificationFunction != NULL ) {
+            pAllocationCallbacks->internalFreeNotificationFunction (
+                    pAllocationCallbacks->pUserData,
+                    & allocationNotification
+            );
+        }
+
+        pAllocationCallbacks->freeFunction (
+                pAllocationCallbacks->pUserData,
+                allocationNotification.pMemory
+        );
+
+        return result;
+    }
+
+    result = __MeshLoader_JobPauseTable_construct (
+            & ( * ppNode )->context.jobPauseTable,
+            & scopedAllocationCallbacks
+    );
+
+    if ( result != MeshLoader_Result_Success ) {
+
+        __MeshLoader_JobPriorityQueue_destruct (
+                & ( * ppNode )->context.jobQueue,
+                & scopedAllocationCallbacks
+        );
+
         if ( pAllocationCallbacks->internalFreeNotificationFunction != NULL ) {
             pAllocationCallbacks->internalFreeNotificationFunction (
                     pAllocationCallbacks->pUserData,
@@ -202,6 +230,11 @@ static MeshLoader_Result __MeshLoader_JobDispatcher_allocateContext (
         );
 
         if ( result != MeshLoader_Result_Success ) {
+
+            __MeshLoader_JobPauseTable_destruct (
+                    & ( * ppNode )->context.jobPauseTable,
+                    & scopedAllocationCallbacks
+            );
 
             __MeshLoader_JobPriorityQueue_destruct (
                     & ( * ppNode )->context.jobQueue,
@@ -230,6 +263,11 @@ static MeshLoader_Result __MeshLoader_JobDispatcher_allocateContext (
         );
 
         if ( result != MeshLoader_Result_Success ) {
+
+            __MeshLoader_JobPauseTable_destruct (
+                    & ( * ppNode )->context.jobPauseTable,
+                    & scopedAllocationCallbacks
+            );
 
             __MeshLoader_JobPriorityQueue_destruct (
                     & ( * ppNode )->context.jobQueue,

@@ -291,7 +291,11 @@ MeshLoader_Result __MeshLoader_JobPauseTable_construct (
     pTable->size        = 0U;
     pTable->growthIndex = 0U;
     pTable->bucketCount = __MeshLoader_JobPauseTable_PrimeRehashPolicyTable [pTable->growthIndex];
-    pTable->bucketArray = (__MeshLoader_JobPauseTable_BucketArray) allocationNotification.pMemory;
+    pTable->bucketArray = (__MeshLoader_JobPauseTable_BucketArray) memset (
+            allocationNotification.pMemory,
+            0U,
+            sizeof (__MeshLoader_JobPauseTable_List) * pTable->bucketCount
+    );
 
     return MeshLoader_Result_Success;
 }

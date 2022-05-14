@@ -7,6 +7,7 @@
 
 #include <meshLoader/publicTypes>
 #include "jobPriorityQueue.h"
+#include "jobPauseTable.h"
 #include "mutex.h"
 #include "jobMemoryAllocator.h"
 
@@ -16,6 +17,8 @@ typedef struct {
 
     MeshLoader_uint32               jobCount;
     MeshLoader_uint32               finishedJobCount;
+
+    __MeshLoader_JobPauseTable      jobPauseTable;
 } __MeshLoader_JobDispatcher_Context;
 
 typedef struct __MeshLoader_JobDispatcher_ContextNode {
