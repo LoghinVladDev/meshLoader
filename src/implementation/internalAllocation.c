@@ -150,15 +150,7 @@ static void * __MeshLoader_InternalAllocation_reallocate (
     (void) alignment;
     (void) allocationScope;
 
-    void * pRet;
-
-    if ( pOriginal == NULL ) {
-        pRet = malloc ( size );
-        return pRet;
-    }
-
-    pRet = realloc ( pOriginal, size );
-    return pRet;
+    return realloc ( pOriginal, size );
 }
 
 static void __MeshLoader_InternalAllocation_free (
