@@ -177,6 +177,9 @@ int main() {
             goto end;
         }
 
+        meshDataArray->structureType    = MeshLoader_StructureType_MeshData;
+        meshDataArray[i].pNext = NULL;
+
         result = MeshLoader_getMeshData (
                 meshes [i],
                 & meshDataArray [i]

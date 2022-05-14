@@ -76,6 +76,8 @@ typedef enum {
 
     MeshLoader_StructureType_JobData                = 0x00001000U,
     MeshLoader_StructureType_CustomJobInfo          = 0x00001001U,
+
+    MeshLoader_StructureType_MeshData               = 0x0000000BU,
 } MeshLoader_StructureType;
 
 typedef enum {
@@ -203,7 +205,8 @@ typedef struct {
 } MeshLoader_IndexData;
 
 typedef struct {
-    void                    const * pUserData;
+    MeshLoader_StructureType        structureType;
+    void                          * pNext;
     MeshLoader_uint32               vertexCount;
     MeshLoader_VertexData   const * pVertices;
     MeshLoader_uint32               faceCount;
