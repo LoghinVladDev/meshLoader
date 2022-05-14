@@ -108,12 +108,12 @@ typedef enum {
 } MeshLoader_Result;
 
 typedef enum {
-    MeshLoader_JobStatus_Unknown                    = 0x00000000U,
-    MeshLoader_JobStatus_Ready                      = 0x00000001U,
-    MeshLoader_JobStatus_Running                    = 0x00000002U,
-    MeshLoader_JobStatus_FinishedError              = 0x00000003U,
-    MeshLoader_JobStatus_Finished                   = 0x00000004U,
-} MeshLoader_JobStatus;
+    MeshLoader_JobState_Unknown                    = 0x00000000U,
+    MeshLoader_JobState_Ready                      = 0x00000001U,
+    MeshLoader_JobState_Running                    = 0x00000002U,
+    MeshLoader_JobState_FinishedError              = 0x00000003U,
+    MeshLoader_JobState_Finished                   = 0x00000004U,
+} MeshLoader_JobState;
 
 typedef enum {
     MeshLoader_MeshLoadModeFlag_LoadFaces           = 0x00000001U,
@@ -279,7 +279,7 @@ typedef struct {
     MeshLoader_StructureType            structureType;
     void                              * pNext;
     MeshLoader_Job                      job;
-    MeshLoader_JobStatus                status;
+    MeshLoader_JobState                 state;
     float                               progress;
 } MeshLoader_QueryJobInfo;
 

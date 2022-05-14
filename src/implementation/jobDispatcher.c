@@ -411,8 +411,8 @@ MeshLoader_Result __MeshLoader_JobDispatcher_acquireJob (
 
     * ppContextNode     = pHighestPriorityContext;
 
-    if ( ( * ppRuntimeContext )->jobStatus == ( MeshLoader_uint8 ) MeshLoader_JobStatus_Ready ) {
-        ( * ppRuntimeContext )->jobStatus = ( MeshLoader_uint8 ) MeshLoader_JobStatus_Running;
+    if ( ( * ppRuntimeContext )->jobState == ( MeshLoader_uint8 ) MeshLoader_JobState_Ready ) {
+        ( * ppRuntimeContext )->jobState = ( MeshLoader_uint8 ) MeshLoader_JobState_Running;
     }
 
     __MeshLoader_Mutex_unlock (
@@ -440,8 +440,8 @@ MeshLoader_Result __MeshLoader_JobDispatcher_releaseJob (
     }
 
     if (
-            pRuntimeContext->jobStatus == ( MeshLoader_uint8 ) MeshLoader_JobStatus_Finished ||
-            pRuntimeContext->jobStatus == ( MeshLoader_uint8 ) MeshLoader_JobStatus_FinishedError
+            pRuntimeContext->jobState == ( MeshLoader_uint8 ) MeshLoader_JobState_Finished ||
+            pRuntimeContext->jobState == ( MeshLoader_uint8 ) MeshLoader_JobState_FinishedError
     ) {
         pContextNode->context.finishedJobCount ++;
 

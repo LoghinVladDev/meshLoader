@@ -390,7 +390,7 @@ static void __MeshLoader_JobWorker_main (
 
     if ( pThis->state == __MeshLoader_JobWorker_State_Error &&  pThis->pRuntimeContext != NULL ) {
 
-        pThis->pRuntimeContext->jobStatus = MeshLoader_JobStatus_FinishedError;
+        pThis->pRuntimeContext->jobState = MeshLoader_JobState_FinishedError;
         if ( pThis->pCurrentDispatcherContextNode != NULL ) {
 
             (void) __MeshLoader_JobDispatcher_releaseJob (
@@ -423,9 +423,9 @@ static inline MeshLoader_Result __MeshLoader_JobWorker_loadJobData (
         return result;
     }
 
-    result = __MeshLoader_Job_getStatus (
+    result = __MeshLoader_Job_getState (
             pRuntimeContext,
-            & jobData->status
+            & jobData->state
     );
 
     if ( result != MeshLoader_Result_Success ) {
@@ -457,9 +457,9 @@ static inline MeshLoader_Result __MeshLoader_JobWorker_storeJobData (
         return result;
     }
 
-    result = __MeshLoader_Job_setStatus (
+    result = __MeshLoader_Job_setState (
             pRuntimeContext,
-            jobData->status
+            jobData->state
     );
 
     pRuntimeContext->pNextCallData = jobData->pNextCallData;

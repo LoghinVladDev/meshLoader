@@ -106,7 +106,7 @@ MeshLoader_Result __MeshLoader_Job_construct (
     job->priority               = pCreateInfo->priority;
     job->context.loadMode       = pCreateInfo->loadMode;
     job->context.jobProgress    = MESH_LOADER_JOB_PROGRESS_MIN_VALUE;
-    job->context.jobStatus      = ( MeshLoader_uint8 ) MeshLoader_JobStatus_Ready;
+    job->context.jobState       = ( MeshLoader_uint8 ) MeshLoader_JobState_Ready;
     job->context.pNextCallData  = NULL;
     job->jobType                = pCreateInfo->jobType;
 
@@ -238,7 +238,7 @@ MeshLoader_Result MeshLoader_Job_finish (
         MeshLoader_Job_Context  jobContext
 ) {
 
-    jobContext->status = MeshLoader_JobStatus_Finished;
+    jobContext->state = MeshLoader_JobState_Finished;
     return MeshLoader_Result_Success;
 }
 

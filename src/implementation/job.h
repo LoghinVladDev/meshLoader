@@ -19,7 +19,7 @@ typedef struct {
     MeshLoader_MeshLoadModeFlags        loadMode;
     __MeshLoader_String                 inputPath;
     atomic_uint_fast32_t                jobProgress;
-    atomic_uint_fast8_t                 jobStatus;
+    atomic_uint_fast8_t                 jobState;
     MeshLoader_CustomJobInfo    const * pCustomJobInfo;
     __MeshLoader_JobMemoryAllocator     jobMemoryAllocator;
     void                              * pNextCallData;
@@ -34,7 +34,7 @@ struct __MeshLoader_Job_Context {
     MeshLoader_MeshLoadModeFlags                loadMode;
     MeshLoader_StringLiteral                    inputPath;
     float                                       progress;
-    MeshLoader_JobStatus                        status;
+    MeshLoader_JobState                         state;
     __MeshLoader_JobMemoryAllocator           * pMemoryAllocator;
     void                                      * pNextCallData;
 
@@ -86,21 +86,21 @@ static inline MeshLoader_Result __MeshLoader_Job_getProgress (
     return MeshLoader_Result_Success;
 }
 
-static inline MeshLoader_Result __MeshLoader_Job_setStatus (
+static inline MeshLoader_Result __MeshLoader_Job_setState (
         __MeshLoader_Job_RuntimeContext   * pContext,
-        MeshLoader_JobStatus                status
+        MeshLoader_JobState                 status
 ) {
 
-    pContext->jobStatus = ( MeshLoader_uint8 ) status;
+    pContext->jobState = ( MeshLoader_uint8 ) status;
     return MeshLoader_Result_Success;
 }
 
-static inline MeshLoader_Result __MeshLoader_Job_getStatus (
+static inline MeshLoader_Result __MeshLoader_Job_getState (
         __MeshLoader_Job_RuntimeContext   const * pContext,
-        MeshLoader_JobStatus                    * pStatus
+        MeshLoader_JobState                     * pState
 ) {
 
-    * pStatus = ( MeshLoader_JobStatus ) pContext->jobStatus;
+    * pState = ( MeshLoader_JobState ) pContext->jobState;
     return MeshLoader_Result_Success;
 }
 

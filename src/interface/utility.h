@@ -14,7 +14,7 @@ extern "C" {
 extern MeshLoader_StringLiteral MeshLoader_StructureType_toString ( MeshLoader_StructureType );
 extern MeshLoader_StringLiteral MeshLoader_SystemAllocationScope_toString ( MeshLoader_SystemAllocationScope );
 extern MeshLoader_StringLiteral MeshLoader_Result_toString ( MeshLoader_Result );
-extern MeshLoader_StringLiteral MeshLoader_JobStatus_toString ( MeshLoader_JobStatus );
+extern MeshLoader_StringLiteral MeshLoader_JobState_toString ( MeshLoader_JobState );
 extern MeshLoader_StringLiteral MeshLoader_JobsCreateFlagBits_toString ( MeshLoader_JobsCreateFlagBits );
 
 extern MeshLoader_size MeshLoader_AllocationCallbacks_toString ( MeshLoader_AllocationCallbacks const * );

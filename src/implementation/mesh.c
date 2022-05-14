@@ -116,21 +116,21 @@ MeshLoader_Result MeshLoader_getMesh (
         MeshLoader_Mesh   * pMesh
 ) {
 
-    switch ( ( MeshLoader_JobStatus ) job->context.jobStatus ) {
-        case MeshLoader_JobStatus_Ready:
+    switch ( ( MeshLoader_JobState ) job->context.jobState ) {
+        case MeshLoader_JobState_Ready:
             return MeshLoader_Result_JobNotStarted;
-        case MeshLoader_JobStatus_Running:
+        case MeshLoader_JobState_Running:
             return MeshLoader_Result_NotReady;
-        case MeshLoader_JobStatus_FinishedError:
+        case MeshLoader_JobState_FinishedError:
             return MeshLoader_Result_JobExecutionFailed;
-        case MeshLoader_JobStatus_Finished:
+        case MeshLoader_JobState_Finished:
             break;
 
         default:
             return MeshLoader_Result_ErrorUnknown;
     }
 
-    *pMesh = &job->context.mesh;
+    * pMesh = & job->context.mesh;
     return MeshLoader_Result_Success;
 }
 
@@ -140,14 +140,14 @@ MeshLoader_Result MeshLoader_takeMesh (
         MeshLoader_Mesh                       * pMesh
 ) {
 
-    switch ( ( MeshLoader_JobStatus ) job->context.jobStatus ) {
-        case MeshLoader_JobStatus_Ready:
+    switch ( ( MeshLoader_JobState ) job->context.jobState ) {
+        case MeshLoader_JobState_Ready:
             return MeshLoader_Result_JobNotStarted;
-        case MeshLoader_JobStatus_Running:
+        case MeshLoader_JobState_Running:
             return MeshLoader_Result_NotReady;
-        case MeshLoader_JobStatus_FinishedError:
+        case MeshLoader_JobState_FinishedError:
             return MeshLoader_Result_JobExecutionFailed;
-        case MeshLoader_JobStatus_Finished:
+        case MeshLoader_JobState_Finished:
             break;
 
         default:
