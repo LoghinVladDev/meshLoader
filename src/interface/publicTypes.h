@@ -203,6 +203,7 @@ typedef struct {
 } MeshLoader_IndexData;
 
 typedef struct {
+    void                    const * pUserData;
     MeshLoader_uint32               vertexCount;
     MeshLoader_VertexData   const * pVertices;
     MeshLoader_uint32               faceCount;
