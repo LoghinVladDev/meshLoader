@@ -108,11 +108,13 @@ typedef enum {
 } MeshLoader_Result;
 
 typedef enum {
-    MeshLoader_JobState_Unknown                    = 0x00000000U,
     MeshLoader_JobState_Ready                      = 0x00000001U,
     MeshLoader_JobState_Running                    = 0x00000002U,
-    MeshLoader_JobState_FinishedError              = 0x00000003U,
-    MeshLoader_JobState_Finished                   = 0x00000004U,
+    MeshLoader_JobState_Paused                     = 0x00000003U,
+    MeshLoader_JobState_Stopped                    = 0x00000004U,
+    MeshLoader_JobState_Terminated                 = 0x00000005U,
+    MeshLoader_JobState_Finished                   = 0x00000010U,
+    MeshLoader_JobState_FinishedError              = 0x00000020U,
 } MeshLoader_JobState;
 
 typedef enum {
