@@ -11,10 +11,10 @@ extern "C" {
 
 #include <meshLoader/publicTypes>
 
-typedef struct __MeshLoader_Job_Context * MeshLoader_Job_Context;
+MESH_LOADER_DEFINE_HANDLE ( MeshLoader_Job_Context )
 
 typedef MeshLoader_Result ( * MeshLoader_Job_MainFunction ) (
-        MeshLoader_Job_Context
+        MeshLoader_Job_Context  context
 );
 
 typedef struct {
