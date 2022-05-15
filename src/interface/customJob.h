@@ -71,12 +71,12 @@ extern MeshLoader_Result MeshLoader_Job_allocateMemory2 (
 );
 
 static inline MeshLoader_Result MeshLoader_Job_allocateMemory (
-        MeshLoader_Job_Context      context,
+        MeshLoader_Job_Context      jobContext,
         MeshLoader_size             size,
         void                     ** ppMemory
 ) {
     return MeshLoader_Job_allocateMemory2 (
-            context,
+            jobContext,
             size,
             1U,
             ppMemory
@@ -92,13 +92,13 @@ extern MeshLoader_Result MeshLoader_Job_reallocateMemory2 (
 );
 
 static inline MeshLoader_Result MeshLoader_Job_reallocateMemory (
-        MeshLoader_Job_Context    context,
+        MeshLoader_Job_Context    jobContext,
         void                    * pOldMemory,
         MeshLoader_size           newSize,
         void                   ** ppMemory
 ) {
     return MeshLoader_Job_reallocateMemory2 (
-            context,
+            jobContext,
             pOldMemory,
             newSize,
             1U,
