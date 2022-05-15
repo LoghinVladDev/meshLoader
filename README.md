@@ -45,4 +45,4 @@ link_libraries(project/library/folder/lib/libmeshloader.a)
 ### Install TBA
 
 ### Usage
-For usage guidelines, the [Specification](https://loghinvladdev.github.io/pages/meshLoaderSpecification.html) is available as a GitHub wiki page
+For usage guidelines, consult the [Specification](https://loghinvladdev.github.io/pages/meshLoaderSpecification.html)
