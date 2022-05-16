@@ -172,6 +172,10 @@ void __MeshLoader_Job_destruct (
             .explicitAllocationPurpose  = NULL
     };
 
+    if ( job == MeshLoader_invalidHandle ) {
+        return;
+    }
+
     if (
             job->jobType                == MeshLoader_JobType_Custom &&
             job->context.pCustomJobInfo != NULL

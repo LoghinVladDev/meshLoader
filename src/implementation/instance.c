@@ -87,6 +87,10 @@ void MeshLoader_destroyInstance (
         MeshLoader_AllocationCallbacks  const * pAllocationCallbacks
 ) {
 
+    if ( instance == MeshLoader_invalidHandle ) {
+        return;
+    }
+
     pAllocationCallbacks = __MeshLoader_Utility_nonNullAllocationCallbacks ( pAllocationCallbacks );
 
     __MeshLoader_Instance_destruct (
