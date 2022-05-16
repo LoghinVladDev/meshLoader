@@ -568,6 +568,10 @@ void MeshLoader_destroyMesh (
             .explicitMemoryPurpose  = "Destroys a Mesh Object obtained from a completed Job"
     };
 
+    if ( mesh == MeshLoader_invalidHandle ) {
+        return;
+    }
+
     pAllocationCallbacks = __MeshLoader_InternalAllocation_getCallbacks (pAllocationCallbacks );
 
     if ( mesh->data.pVertices != NULL ) {
