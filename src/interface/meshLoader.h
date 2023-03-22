@@ -40,6 +40,16 @@ extern MeshLoader_Result MeshLoader_startJobs (
         MeshLoader_JobsStartInfo        const * pStartInfo
 );
 
+extern MeshLoader_Result MeshLoader_pauseJobs (
+        MeshLoader_Instance                     instance,
+        MeshLoader_JobsPauseInfo        const * pPauseInfo
+);
+
+extern MeshLoader_Result MeshLoader_resumeJobs (
+        MeshLoader_Instance                     instance,
+        MeshLoader_JobsResumeInfo       const * pResumeInfo
+);
+
 extern MeshLoader_Result MeshLoader_queryJobs (
         MeshLoader_Instance                     instance,
         MeshLoader_JobsQueryInfo              * pQueryInfo

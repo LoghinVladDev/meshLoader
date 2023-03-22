@@ -100,6 +100,8 @@ static void __MeshLoader_JobDispatcher_freeContext (
             & scopedAllocationCallbacks
     );
 
+    /* TODO: clear the inactive queue as well */
+
     allocationNotification.pMemory = pNode;
 
     if ( pNode->context.allocationCallbacks.internalFreeNotificationFunction != NULL ) {
@@ -173,6 +175,8 @@ static MeshLoader_Result __MeshLoader_JobDispatcher_allocateContext (
             pStartInfo->jobCount,
             & scopedAllocationCallbacks
     );
+
+    /* TODO: construct inactive queue as well */
 
     if ( result != MeshLoader_Result_Success )  {
         if ( pAllocationCallbacks->internalFreeNotificationFunction != NULL ) {
@@ -301,6 +305,110 @@ MeshLoader_Result MeshLoader_startJobs (
     return MeshLoader_Result_Success;
 }
 
+MeshLoader_Result MeshLoader_pauseJobs (
+        MeshLoader_Instance                     instance,
+        MeshLoader_JobsPauseInfo        const * pPauseInfo
+) {
+
+    MeshLoader_Result   result;
+    MeshLoader_uint32   pausedJobCount = 0U;
+
+    result = __MeshLoader_Mutex_lock (instance->dispatcher.lock);
+    if (result != MeshLoader_Result_Success) {
+        return result;
+    }
+
+    for (MeshLoader_uint32 jobIndex = 0U; jobIndex < pPauseInfo->jobCount; ++ jobIndex) {
+
+        MeshLoader_Job job = pPauseInfo->pJobs [jobIndex];
+
+        switch ((MeshLoader_JobState) atomic_load_explicit (& job->context.jobState, memory_order_acquire)) {
+            case MeshLoader_JobState_Paused:
+                pausedJobCount ++;
+            case MeshLoader_JobState_Ready:
+            case MeshLoader_JobState_Stopped:
+            case MeshLoader_JobState_Terminated:
+            case MeshLoader_JobState_Finished:
+            case MeshLoader_JobState_FinishedError:
+                continue;
+            case MeshLoader_JobState_Running:
+                break;
+        }
+
+        __MeshLoader_Job_ChangeRequestType previousRequestedChange = (__MeshLoader_Job_ChangeRequestType) atomic_exchange_explicit (
+                & job->context.requestedChange,
+                __MeshLoader_Job_ChangeRequestType_Pause,
+                memory_order_release
+        );
+
+        if (
+                previousRequestedChange == __MeshLoader_Job_ChangeRequestType_None ||
+                previousRequestedChange == __MeshLoader_Job_ChangeRequestType_Pause
+        ) {
+            ++ pausedJobCount;
+        }
+    }
+
+    __MeshLoader_Mutex_unlock (instance->dispatcher.lock);
+    if (pausedJobCount != pPauseInfo->jobCount) {
+        return MeshLoader_Result_PartialSuccess;
+    }
+
+    return MeshLoader_Result_Success;
+}
+
+MeshLoader_Result MeshLoader_resumeJobs (
+        MeshLoader_Instance                     instance,
+        MeshLoader_JobsResumeInfo       const * pResumeInfo
+) {
+
+    MeshLoader_Result   result;
+    MeshLoader_uint32   resumedJobCount = 0U;
+
+    result = __MeshLoader_Mutex_lock (instance->dispatcher.lock);
+    if (result != MeshLoader_Result_Success) {
+        return result;
+    }
+
+    for (MeshLoader_uint32 jobIndex = 0U; jobIndex < pResumeInfo->jobCount; ++ jobIndex) {
+
+        MeshLoader_Job job = pResumeInfo->pJobs [jobIndex];
+
+        switch ((MeshLoader_JobState) atomic_load_explicit (& job->context.jobState, memory_order_acquire)) {
+            case MeshLoader_JobState_Running:
+                resumedJobCount ++;
+            case MeshLoader_JobState_Ready:
+            case MeshLoader_JobState_Stopped:
+            case MeshLoader_JobState_Terminated:
+            case MeshLoader_JobState_Finished:
+            case MeshLoader_JobState_FinishedError:
+                continue;
+            case MeshLoader_JobState_Paused:
+                break;
+        }
+
+        __MeshLoader_Job_ChangeRequestType previousRequestedChange = (__MeshLoader_Job_ChangeRequestType) atomic_exchange_explicit (
+                & job->context.requestedChange,
+                __MeshLoader_Job_ChangeRequestType_Resume,
+                memory_order_release
+        );
+
+        if (
+                previousRequestedChange == __MeshLoader_Job_ChangeRequestType_None ||
+                previousRequestedChange == __MeshLoader_Job_ChangeRequestType_Resume
+        ) {
+            ++ resumedJobCount;
+        }
+    }
+
+    __MeshLoader_Mutex_unlock (instance->dispatcher.lock);
+    if (resumedJobCount != pResumeInfo->jobCount) {
+        return MeshLoader_Result_PartialSuccess;
+    }
+
+    return MeshLoader_Result_Success;
+}
+
 MeshLoader_Result MeshLoader_queryJobs (
         MeshLoader_Instance                     instance,
         MeshLoader_JobsQueryInfo              * pQueryInfo
@@ -313,6 +421,15 @@ MeshLoader_Result MeshLoader_queryJobs (
         result = __MeshLoader_Job_getProgress (
                 & pQueryInfo->pQueryJobInfos [ jobIndex ].job->context,
                 & pQueryInfo->pQueryJobInfos [ jobIndex ].progress
+        );
+
+        if ( result != MeshLoader_Result_Success ) {
+            return result;
+        }
+
+        result = __MeshLoader_Job_getState (
+                & pQueryInfo->pQueryJobInfos [ jobIndex ].job->context,
+                & pQueryInfo->pQueryJobInfos [ jobIndex ].state
         );
 
         if ( result != MeshLoader_Result_Success ) {
@@ -356,6 +473,7 @@ MeshLoader_Result __MeshLoader_JobDispatcher_acquireJob (
         return result;
     }
 
+    /* TODO: seek in paused jobs for any to be resumed */
     * ppContextNode     = pDispatcher->contextList;
 
     while ( ( * ppContextNode ) != NULL ) {
@@ -378,6 +496,7 @@ MeshLoader_Result __MeshLoader_JobDispatcher_acquireJob (
             return result;
         }
 
+        /* TODO: Loop while jobs are paused, move to inactive queue */
         if ( pHighestPriorityContext == NULL || * pContextPriority < pEntry->priority ) {
             pHighestPriorityContext = * ppContextNode;
             * pContextPriority      = pEntry->priority;
@@ -386,6 +505,7 @@ MeshLoader_Result __MeshLoader_JobDispatcher_acquireJob (
         ( * ppContextNode ) = ( * ppContextNode )->pNext;
     }
 
+    /* TODO: if both from active and inactive are null */
     if ( pHighestPriorityContext == NULL ) {
         __MeshLoader_Mutex_unlock (
                 pDispatcher->lock
@@ -394,6 +514,7 @@ MeshLoader_Result __MeshLoader_JobDispatcher_acquireJob (
         return MeshLoader_Result_Success;
     }
 
+    /* TODO: if inactive null */
     result = __MeshLoader_JobPriorityQueue_pop (
             & pHighestPriorityContext->context.jobQueue,
             ppRuntimeContext
@@ -415,6 +536,8 @@ MeshLoader_Result __MeshLoader_JobDispatcher_acquireJob (
         ( * ppRuntimeContext )->jobState = ( MeshLoader_uint8 ) MeshLoader_JobState_Running;
     }
 
+    /* TODO: if active null */
+    /* TODO: else, compare priorities */
     __MeshLoader_Mutex_unlock (
             pDispatcher->lock
     );
@@ -464,6 +587,7 @@ MeshLoader_Result __MeshLoader_JobDispatcher_releaseJob (
         return result;
     }
 
+    /* TODO: identify whether job is to be paused or stopped, then insert to separate queue */
     result = __MeshLoader_JobPriorityQueue_push (
             & pContextNode->context.jobQueue,
             pRuntimeContext,

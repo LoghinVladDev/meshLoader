@@ -80,6 +80,9 @@ set (
 
         src/implementation/jobPriorityQueue.c
         src/implementation/jobPriorityQueue.h
+        
+        src/implementation/jobPauseTable.c
+        src/implementation/jobPauseTable.h
 
         src/implementation/string.c
         src/implementation/string.h

@@ -135,6 +135,74 @@ int main() {
         goto end;
     }
 
+    int pausedJobCount = 0;
+    int pausedJobs [] = {0, 0, 0};
+    do {
+
+        result = MeshLoader_queryJobs ( instance, & queryInfo );
+
+        if ( result != MeshLoader_Result_Success ) {
+            fprintf ( stderr, "Error occurred while querying jobs status" );
+            break;
+        }
+
+        for ( int i = 0; i < jobCount; ++ i ) {
+
+            if (queryInfos [i].progress >= 0.5f && queryInfos->state != MeshLoader_JobState_Paused) {
+                MeshLoader_JobsPauseInfo pauseInfo;
+                pauseInfo.jobCount = 1U;
+                pauseInfo.pJobs = & queryInfos[i].job;
+                pauseInfo.structureType = MeshLoader_StructureType_JobsPauseInfo;
+                pauseInfo.pNext = NULL;
+                pauseInfo.flags = MeshLoader_nullFlags;
+
+                result = MeshLoader_pauseJobs ( instance, & pauseInfo );
+                if ( result != MeshLoader_Result_Success ) {
+                    fprintf (stderr, "Error Occurred while pausing jobs\n");
+                    goto end;
+                }
+
+                pausedJobCount ++;
+            }
+
+            fprintf (
+                    stdout,
+                    "Job %d progress : %.2f%%\n",
+                    i,
+                    queryInfos[i].progress * 100.0f
+            );
+
+            fflush(stdout);
+        }
+
+        if (pausedJobCount == jobCount) {
+            break;
+        }
+
+        result = MeshLoader_anyJobsRunning ( instance, & anyRunning );
+
+        if ( result != MeshLoader_Result_Success ) {
+            fprintf ( stderr, "Error occurred while waiting for jobs to finish" );
+            break;
+        }
+
+    } while ( anyRunning );
+
+    MeshLoader_JobsResumeInfo resumeInfo = {
+            .structureType  = MeshLoader_StructureType_JobsResumeInfo,
+            .pNext          = NULL,
+            .flags          = MeshLoader_nullFlags,
+            .jobCount       = jobCount,
+            .pJobs          = & jobs [0U]
+    };
+
+    result = MeshLoader_resumeJobs (instance, & resumeInfo);
+
+    if (result != MeshLoader_Result_Success) {
+        fprintf ( stderr, "Error occurred while resuming jobs" );
+        goto end;
+    }
+
     do {
 
         result = MeshLoader_queryJobs ( instance, & queryInfo );

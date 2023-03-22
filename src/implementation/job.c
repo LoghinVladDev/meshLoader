@@ -103,12 +103,13 @@ MeshLoader_Result __MeshLoader_Job_construct (
         pNextStructure = pNextStructure->pNext;
     }
 
-    job->priority               = pCreateInfo->priority;
-    job->context.loadMode       = pCreateInfo->loadMode;
-    job->context.jobProgress    = MESH_LOADER_JOB_PROGRESS_MIN_VALUE;
-    job->context.jobState       = ( MeshLoader_uint8 ) MeshLoader_JobState_Ready;
-    job->context.pNextCallData  = NULL;
-    job->jobType                = pCreateInfo->jobType;
+    job->priority                   = pCreateInfo->priority;
+    job->context.loadMode           = pCreateInfo->loadMode;
+    job->context.jobProgress        = MESH_LOADER_JOB_PROGRESS_MIN_VALUE;
+    job->context.jobState           = ( MeshLoader_uint8 ) MeshLoader_JobState_Ready;
+    job->context.pNextCallData      = NULL;
+    job->jobType                    = pCreateInfo->jobType;
+    job->context.requestedChange    = ATOMIC_VAR_INIT ((MeshLoader_uint8) __MeshLoader_Job_ChangeRequestType_None);
 
     if ( job->jobType != MeshLoader_JobType_Custom ) {
         job->context.pCustomJobInfo = __MeshLoader_SpecializedWorker_getInfo ( job->jobType );

@@ -98,6 +98,7 @@ typedef enum {
     MeshLoader_Result_NotReady                      = 1,
     MeshLoader_Result_TooSmall                      = 2,
     MeshLoader_Result_JobNotStarted                 = 3,
+    MeshLoader_Result_PartialSuccess                = 4,
     MeshLoader_Result_ErrorUnknown                  = -1,
     MeshLoader_Result_IllegalArgument               = -2,
     MeshLoader_Result_TooManyObjects                = -3,

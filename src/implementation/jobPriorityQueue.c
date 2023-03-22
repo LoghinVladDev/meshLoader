@@ -11,7 +11,6 @@ extern MeshLoader_Result __MeshLoader_JobPriorityQueue_construct (
         __MeshLoader_ScopedAllocationCallbacks  const * pAllocationCallbacks
 ) {
 
-    MeshLoader_Result                   result;
     MeshLoader_AllocationNotification   allocationNotification = {
             .structureType              = MeshLoader_StructureType_AllocationNotification,
             .pNext                      = NULL,

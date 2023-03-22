@@ -15,6 +15,13 @@
 #include "jobMemoryAllocator.h"
 #include "mesh.h"
 
+typedef enum {
+    __MeshLoader_Job_ChangeRequestType_None,
+    __MeshLoader_Job_ChangeRequestType_Pause,
+    __MeshLoader_Job_ChangeRequestType_Stop,
+    __MeshLoader_Job_ChangeRequestType_Resume
+} __MeshLoader_Job_ChangeRequestType;
+
 typedef struct {
     MeshLoader_MeshLoadModeFlags        loadMode;
     __MeshLoader_String                 inputPath;
@@ -25,6 +32,8 @@ typedef struct {
     void                              * pNextCallData;
 
     struct __MeshLoader_Mesh            mesh;
+
+    atomic_uint_fast8_t                 requestedChange;
 } __MeshLoader_Job_RuntimeContext;
 
 struct __MeshLoader_Job_Context {
