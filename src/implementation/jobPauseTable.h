@@ -2,8 +2,8 @@
 // Created by loghin on 3/22/2023.
 //
 
-#ifndef __MESH_LOADER_JOB_PAUSE_TABLE
-#define __MESH_LOADER_JOB_PAUSE_TABLE
+#ifndef __MESH_LOADER_JOB_PAUSE_TABLE_H__
+#define __MESH_LOADER_JOB_PAUSE_TABLE_H__
 
 #include <meshLoader/publicTypes>
 #include "job.h"
@@ -86,4 +86,4 @@ extern MeshLoader_bool __MeshLoader_JobPauseTable_Iterator_equal (
 );
 
 
-#endif /* __MESH_LOADER_JOB_PAUSE_TABLE */
+#endif /* __MESH_LOADER_JOB_PAUSE_TABLE_H__ */
