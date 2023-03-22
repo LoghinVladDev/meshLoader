@@ -174,9 +174,7 @@ static void __MeshLoader_InternalAllocation_allocationNotify (
 
     fprintf (
             stdout,
-            "[%s:%d] Allocation of %llu bytes -> %#020llx, aligned at %llu, scope : %s. Purpose : %s\n",
-            __FILE__,
-            __LINE__,
+            "Allocation of %llu bytes -> %#020llx, aligned at %llu, scope : %s. Purpose : %s\n",
             pNotification->size,
             ( MeshLoader_size ) pNotification->pMemory,
             pNotification->alignment,
@@ -199,9 +197,7 @@ static void __MeshLoader_InternalAllocation_reallocationNotify (
 
     fprintf (
             stdout,
-            "[%s:%d] Reallocation of %llu bytes at %#020llx from old %#020llx, aligned at %llu, scope : %s. Purpose : %s\n",
-            __FILE__,
-            __LINE__,
+            "Reallocation of %llu bytes at %#020llx from old %#020llx, aligned at %llu, scope : %s. Purpose : %s\n",
             pNotification->size,
             ( MeshLoader_size ) pNotification->pMemory,
             ( MeshLoader_size ) pNotification->pOldMemory,
@@ -221,9 +217,7 @@ static void __MeshLoader_InternalAllocation_freeNotify (
 
     fprintf (
             stdout,
-            "[%s:%d] Free of %#020llx. Purpose : %s\n",
-            __FILE__,
-            __LINE__,
+            "Free of %#020llx. Purpose : %s\n",
             ( MeshLoader_size ) pNotification->pMemory,
             ( pNotification->explicitMemoryPurpose == NULL ? "Unspecified" : pNotification->explicitMemoryPurpose )
     );
