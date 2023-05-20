@@ -9,6 +9,7 @@
 #include "job.h"
 #include <memory.h>
 #include <meshLoader/customJob>
+#include "privateUtility.h"
 
 MeshLoader_Result __MeshLoader_JobDispatcher_construct (
         __MeshLoader_JobDispatcher            * pDispatcher,
@@ -121,7 +122,7 @@ static MeshLoader_Result __MeshLoader_JobDispatcher_allocateContext (
 ) {
 
     MeshLoader_Result                       result;
-    MeshLoader_AllocationCallbacks  const * pAllocationCallbacks        = __MeshLoader_InternalAllocation_getCallbacks ( pStartInfo->pAllocationCallbacks );
+    MeshLoader_AllocationCallbacks  const * pAllocationCallbacks        = __MeshLoader_Utility_nonNullAllocationCallbacks( pStartInfo->pAllocationCallbacks );
     MeshLoader_AllocationNotification       allocationNotification      = {
             .structureType              = MeshLoader_StructureType_AllocationNotification,
             .pNext                      = NULL,
