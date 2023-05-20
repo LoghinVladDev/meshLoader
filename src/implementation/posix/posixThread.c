@@ -2,7 +2,7 @@
 // Created by loghin on 5/4/22.
 //
 
-#if defined(__linux__)
+#if defined(__linux__) || defined(__APPLE__)
 
 #include <pthread.h>
 #include <meshLoader/publicTypes>

@@ -6,6 +6,7 @@
 #include <memory.h>
 #include "mesh.h"
 #include "job.h"
+#include "privateUtility.h"
 
 MeshLoader_Result __MeshLoader_Mesh_construct (
         MeshLoader_Mesh                         mesh,
@@ -167,7 +168,7 @@ MeshLoader_Result MeshLoader_takeMesh (
 
     MeshLoader_Mesh mesh = NULL;
 
-    pAllocationCallbacks = __MeshLoader_InternalAllocation_getCallbacks (pAllocationCallbacks );
+    pAllocationCallbacks = __MeshLoader_Utility_nonNullAllocationCallbacks (pAllocationCallbacks);
 
     allocationNotification.pMemory = pAllocationCallbacks->allocationFunction (
             pAllocationCallbacks->pUserData,
@@ -572,7 +573,7 @@ void MeshLoader_destroyMesh (
         return;
     }
 
-    pAllocationCallbacks = __MeshLoader_InternalAllocation_getCallbacks (pAllocationCallbacks );
+    pAllocationCallbacks = __MeshLoader_Utility_nonNullAllocationCallbacks (pAllocationCallbacks);
 
     if ( mesh->data.pVertices != NULL ) {
         allocationNotification.pMemory = ((void *) (MeshLoader_size) mesh->data.pVertices);
