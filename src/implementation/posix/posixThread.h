@@ -5,7 +5,7 @@
 #ifndef __MESH_LOADER_POSIX_THREAD_H__
 #define __MESH_LOADER_POSIX_THREAD_H__
 
-#if defined(__linux__)
+#if defined(__linux__) || defined(__APPLE__)
 
 #include <meshLoader/publicTypes>
 #include "../internalAllocation.h"

@@ -18,7 +18,7 @@ typedef void ( * __MeshLoader_Thread_Function ) (
         __MeshLoader_Thread_Parameters const *
 );
 
-#if defined(__linux__)
+#if defined(__linux__) || defined(__APPLE__)
 typedef struct __MeshLoader_Posix_Thread * __MeshLoader_Thread;
 #include "posix/posixThread.h"
 #elif defined(WIN32)

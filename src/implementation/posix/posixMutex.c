@@ -7,7 +7,7 @@
 #include <stdalign.h>
 #include "../internalAllocation.h"
 
-#if defined(__linux__)
+#if defined(__linux__) || defined(__APPLE__)
 
 static pthread_mutex_t  __MeshLoader_PosixMutex_moduleLock;
 static MeshLoader_bool  __MeshLoader_PosixMutex_firstApplyModuleLockCall = MeshLoader_true;
